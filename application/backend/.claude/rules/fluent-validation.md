@@ -30,7 +30,7 @@ public sealed class MakePredictionValidator : AbstractValidator<MakePredictionCo
 - **`Cascade(CascadeMode.Stop)`** on fields with multiple rules.
 - **Conditional**: `.When()` for optional/context-dependent fields.
 - **Collections**: `RuleForEach()`.
-- **Ranges mirror the business doc** (input bounds only): goals `0-20` (BR-010), yellow cards `0-20` (BR-024), red cards `0-10` (BR-025), substitutions `0-5` per team (BR-028).
+- **Ranges mirror the business doc** (input bounds only): goals `0-20` (BR-010).
 - **Allowed values**: `Must()` with static arrays for flexibility where an enum would be too rigid.
 
 ## What does NOT belong in a validator

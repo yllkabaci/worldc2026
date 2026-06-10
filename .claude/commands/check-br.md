@@ -5,6 +5,6 @@ For each rule, report exactly one of:
 - MISSING — not found
 - INCORRECT — found but logic diverges from the spec
 
-Remember our placement rules: business invariants live in the **domain** (aggregates / ScoringService), not in endpoints or validators; validators check input shape only. Scoring is base-only for the MVP (bonuses/multipliers are tier 2).
+Remember our placement rules: business invariants live in the **domain** (aggregates / ScoringService), not in endpoints or validators; validators check input shape only. Scoring awards points only for an exact score (3) and a correct winner/draw (1) — there are no bonuses and no stage multipliers.
 
 Output a table with file paths and line numbers. Be specific. Do not fix anything — report only.

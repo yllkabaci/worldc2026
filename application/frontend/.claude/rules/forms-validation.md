@@ -14,9 +14,6 @@ Forms use **React Hook Form** resolved by a **Zod** schema. Each schema **mirror
 export const makePredictionSchema = z.object({
   homeGoals: z.number().int().min(0).max(20),  // BR-010
   awayGoals: z.number().int().min(0).max(20),  // BR-010
-  yellowCards: z.number().int().min(0).max(20).optional(),  // BR-024
-  redCards: z.number().int().min(0).max(10).optional(),     // BR-025
-  subs: z.number().int().min(0).max(5).optional(),          // BR-028, per team
 });
 
 export type MakePredictionForm = z.infer<typeof makePredictionSchema>;
@@ -36,7 +33,7 @@ const onSubmit = form.handleSubmit((values) =>
 
 ## Rules
 - **RHF + Zod** for every form; resolve with `zodResolver`. Derive the form type with `z.infer` — never hand-write a parallel type.
-- **Schemas mirror backend bounds exactly**: goals `0–20` (BR-010), yellow cards `0–20` (BR-024), red cards `0–10` (BR-025), subs `0–5` per team (BR-028). When a business rule changes, the schema changes with it.
+- **Schemas mirror backend bounds exactly**: goals `0–20` (BR-010). When a business rule changes, the schema changes with it.
 - **Input shape only.** Like the backend validator, Zod checks types, required, ranges, formats — **never** stateful/business rules ("deadline passed", "one prediction per match", scoring). Those are enforced server-side and surfaced as errors (see `error-handling.md`).
 - **Map API validation errors back to fields.** A `400` with an `errors` dictionary is applied via `form.setError`, so messages appear inline — not as a generic toast.
 - **Guard against double-submit** — disable submit / use the mutation's pending state.

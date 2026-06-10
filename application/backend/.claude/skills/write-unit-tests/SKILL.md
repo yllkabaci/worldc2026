@@ -20,7 +20,7 @@ Read the code under test and classify it. Use the coverage matrix from `testing-
 
 | Target | What to cover | Project |
 |--------|---------------|---------|
-| **Scoring engine** | Exhaustive: every base tier, every bonus, void cases (0-0 minute, cancelled), multiplier math, clamp-at-zero, decimal precision | `WorldCup.Domain.Tests.Unit` |
+| **Scoring engine** | Exhaustive: every outcome (exact/winner/draw/miss), cancelled-match void, clamp-at-zero, decimal precision | `WorldCup.Domain.Tests.Unit` |
 | **Domain aggregate** | Every invariant + lifecycle transition; factory rejects invalid input; events raised | `WorldCup.Domain.Tests.Unit` |
 | **Handler** | Happy path + each thrown domain exception; correct domain method called | `WorldCup.Api.Tests.Unit` |
 | **Validator** | Valid passes; one failing test per rule (ranges, required) | `WorldCup.Api.Tests.Unit` |
@@ -37,8 +37,8 @@ Read the code under test and classify it. Use the coverage matrix from `testing-
 
 ### Scoring engine (highest priority)
 - Test the **pure function directly** - no mocks, no clock, no DB.
-- Use `[Theory]` + `[InlineData]` to sweep the outcome/bonus matrix.
-- Explicitly cover: exact vs winner vs draw vs miss; each bonus on/off; minute-of-first-goal void on 0-0; cancelled-match void; penalty excludes shootouts; multiplier applied to the match total; never-negative clamp; `decimal` precision (no rounding).
+- Use `[Theory]` + `[InlineData]` to sweep the outcome matrix.
+- Explicitly cover: exact vs winner vs draw vs miss; cancelled-match void; never-negative clamp; `decimal` precision (no rounding).
 
 ### Domain aggregates
 - One test per invariant and transition (e.g. predicting after the deadline throws `PredictionWindowClosedException`; illegal match-status transitions rejected; one-prediction-per-match).

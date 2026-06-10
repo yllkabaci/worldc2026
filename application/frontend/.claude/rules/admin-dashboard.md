@@ -16,7 +16,7 @@ The admin console at `/admin` (`AdminDashboardPage`). **Statistics and lists are
 ## Sections (static data lives in arrays at the top of the page)
 - **Stat cards:** Registered users (14,382 +312), Total predictions (98,540 +4,210), Avg accuracy (34% −2%), Active groups (1,847 +58). Color variants `sc--green|blue|amber|purple`; delta chips `.up` (green) / `.warn` (amber).
 - **Matches:** emoji flags + score/time; status `set` (Result set ✓), `live` (Live + dot), `soon` (Upcoming ⏱).
-- **Business rules:** toggle list mirroring the points config (Exact score 3, Correct winner 1, First goalscorer 2, Team to kick off 1, Yellow/Red cards 1, Minute of first goal 2, Penalty 1, Substitutions 1 — off). Toggles are `role="switch"`.
+- **Business rules:** the configurable point values (Exact score 3, Correct winner/draw 1). There are no bonus or multiplier toggles.
 - **Recent activity:** feed with colored icon chips (`act--green|blue|amber|purple|red`).
 
 ## Conventions

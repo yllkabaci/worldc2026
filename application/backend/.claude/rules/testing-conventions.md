@@ -28,7 +28,7 @@ public async Task Handle_PredictionBeforeDeadline_StoresPrediction()
 
 | Layer | Unit tests | Integration tests |
 |-------|-----------|-------------------|
-| **Scoring engine** (`Domain/Scoring`) | **Exhaustive** - the crown jewel. Every tier, bonus, void case, multiplier math, clamp-at-zero, decimal precision | n/a |
+| **Scoring engine** (`Domain/Scoring`) | **Exhaustive** - the crown jewel. Every outcome (exact/winner/draw/miss), cancelled-match void, clamp-at-zero, decimal precision | n/a |
 | **Domain aggregates** | Primary - every invariant and lifecycle transition (deadline, state machine, one-prediction-per-match) | n/a |
 | **MediatR handlers** | Primary - orchestration paths, success + each thrown domain exception | covered via endpoint integration |
 | **Validators** | Unit-test the input rules | wiring test (send invalid request -> 400) |
@@ -45,7 +45,7 @@ public async Task Handle_PredictionBeforeDeadline_StoresPrediction()
 - Replace the external football API with its deterministic twin (no live calls).
 
 ## Determinism for scoring
-- Scoring tests call the pure function directly with fixed inputs (see `scoring-engine.md`); no mocks, no clock, no DB. Prefer `[Theory]` with `[InlineData]` to cover the matrix of outcomes and bonuses.
+- Scoring tests call the pure function directly with fixed inputs (see `scoring-engine.md`); no mocks, no clock, no DB. Prefer `[Theory]` with `[InlineData]` to cover the matrix of outcomes.
 
 ## Test data factories
 - Reused fixtures go in a shared `Tests.Helpers/TestData/{Object}Factory.cs` - **static** class, **use-case-named** methods (`ValidMakePredictionCommand`, `SettledMatch`, `ExactScorePrediction`), optional params with sensible defaults.

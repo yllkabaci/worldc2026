@@ -41,7 +41,7 @@ public sealed class Prediction : AggregateRoot<PredictionId>
 
 ## Aggregate boundaries
 - **`Match`** (root): teams, stage, kickoff, `PredictionDeadline`, status, official `Result`; methods `Schedule`, `OpenForPredictions`, `Settle`, `Cancel`, `Postpone`.
-- **`Prediction`** (separate root): references `MatchId` + `UserId`, holds `Score` and optional `BonusPrediction`. Modeled as its **own aggregate root** so a single prediction write never loads or locks the match's full prediction set.
+- **`Prediction`** (separate root): references `MatchId` + `UserId`, holds `Score`. Modeled as its **own aggregate root** so a single prediction write never loads or locks the match's full prediction set.
 - **`ScoringRuleSet`** (root): effective-dated, immutable once published (see `scoring-engine.md`).
 - Reference other aggregates **by id**, never by navigation property across aggregate roots.
 
@@ -51,7 +51,7 @@ public sealed class Prediction : AggregateRoot<PredictionId>
 - EF Core maps them with **value converters** (configured in Infrastructure, not Domain).
 
 ## Value Objects
-- Immutable, equality-by-value (`readonly record struct` or `sealed record`): `Score(int Home, int Away)`, `BonusPrediction(...)`, `InviteCode`, `PointsBreakdown`.
+- Immutable, equality-by-value (`readonly record struct` or `sealed record`): `Score(int Home, int Away)`, `InviteCode`, `PointsBreakdown`.
 - Value objects validate themselves on creation (e.g. `Score` rejects negative or >20 goals) and contain no I/O.
 
 ## Domain Events

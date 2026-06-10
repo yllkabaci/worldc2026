@@ -12,7 +12,7 @@ The backend is the **system of record** and owns all business truth (backend `bu
 
 | Concern | Where it belongs |
 |---------|------------------|
-| Scoring, points arithmetic, multipliers, void rules | **Backend domain** — never recomputed on the client |
+| Scoring, points arithmetic, void rules | **Backend domain** — never recomputed on the client |
 | Business invariants (deadline passed, one prediction per match, match settleable) | **Backend domain**; the UI shows server rejection (see `error-handling.md`) |
 | Input shape feedback (types, ranges, required) | **Client** Zod schema, mirroring backend bounds (see `forms-validation.md`) |
 | Orchestrating load → render → submit | **Client** feature hooks + components |

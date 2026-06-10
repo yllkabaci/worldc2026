@@ -86,7 +86,7 @@ public sealed class MatchConfiguration : IEntityTypeConfiguration<Match>
 Configuration rules:
 - **Keys:** every aggregate has a key; configure it explicitly.
 - **Strongly-typed IDs:** map with a `HasConversion` (id ↔ underlying value). Prefer a shared convention (below) so every id type is handled once. Reference other aggregates **by id** — no navigation properties across aggregate roots.
-- **Value objects:** map as **owned types** (`OwnsOne`/`OwnsMany`) — e.g. `Score`, `BonusPrediction`, `PointsBreakdown`. Owned types are part of the parent's table unless explicitly split.
+- **Value objects:** map as **owned types** (`OwnsOne`/`OwnsMany`) — e.g. `Score`, `PointsBreakdown`. Owned types are part of the parent's table unless explicitly split.
 - **Enums:** stored **as strings** (`HasConversion<string>()`) with a sensible `HasMaxLength`, matching the JSON convention (`json-serialization.md`).
 - **Money/points:** `decimal` columns with **explicit precision** (`HasPrecision(18, 2)` or as the domain requires). **Never** `double`/`float` (see `scoring-engine.md`).
 - **Strings:** set `HasMaxLength`; mark `IsRequired()` to match domain invariants (validation still lives in the domain).

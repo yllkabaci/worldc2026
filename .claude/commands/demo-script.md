@@ -8,4 +8,4 @@ Structure:
 5. Show cancel/postpone or audited re-settlement as the "correctness under change" moment.
 6. Close on verification rigor: a holdout scenario passing (order-independence / points-conservation).
 
-For each step: what to click, what to say, what to highlight. Add 3 likely judge questions with strong answers (lean on WHY.md). Keep claims aligned with the MVP scope (base scoring; bonuses/groups/real-time are tier 2).
+For each step: what to click, what to say, what to highlight. Add 3 likely judge questions with strong answers (lean on WHY.md). Keep claims aligned with the MVP scope (scoring: exact score / correct winner-or-draw only — no bonuses, no multipliers; groups/real-time are tier 2).

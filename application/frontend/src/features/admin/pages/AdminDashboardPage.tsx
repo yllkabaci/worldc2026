@@ -31,20 +31,13 @@ const MATCHES = [
 
 const RULES = [
   { icon: "trophy", name: "Exact score", pts: "3 pts", on: true },
-  { icon: "award", name: "Correct winner", pts: "1 pt", on: true },
-  { icon: "run", name: "First goalscorer", pts: "2 pts", on: true },
-  { icon: "ball", name: "Team to kick off", pts: "1 pt", on: true },
-  { icon: "cardY", name: "Yellow cards total", pts: "1 pt", on: true },
-  { icon: "cardR", name: "Red cards total", pts: "1 pt", on: true },
-  { icon: "clock", name: "Minute of first goal", pts: "2 pts", on: true },
-  { icon: "dot", name: "Penalty in match", pts: "1 pt", on: true },
-  { icon: "replace", name: "Substitutions per team", pts: "1 pt", on: false },
+  { icon: "award", name: "Correct winner / draw", pts: "1 pt", on: true },
 ];
 
 const ACTIVITY = [
   { variant: "act--green", icon: "check", title: "Result confirmed — FRA 2-1 MEX", sub: "Points distributed to 245,000 users", time: "2m ago" },
   { variant: "act--blue", icon: "userPlus", title: "312 new users registered", sub: "Peak signup hour: 20:00–21:00", time: "6m ago" },
-  { variant: "act--amber", icon: "sliders", title: "Business rule updated", sub: "Minute of first goal: +2 pts (was +1)", time: "18m ago" },
+  { variant: "act--amber", icon: "sliders", title: "Business rule updated", sub: "Correct winner / draw: 1 pt (was 2)", time: "18m ago" },
   { variant: "act--purple", icon: "usersGroup", title: "58 new groups created", sub: 'Largest: "Balkans United" — 47 members', time: "34m ago" },
   { variant: "act--red", icon: "ban", title: "User account blocked", sub: "Reason: suspicious prediction pattern", time: "1h ago" },
   { variant: "act--green", icon: "lock", title: "Prediction window closed", sub: "BRA vs SRB — 60 min before kickoff", time: "1h ago" },
