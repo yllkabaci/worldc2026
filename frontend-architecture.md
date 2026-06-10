@@ -171,3 +171,54 @@ Keep the UI thin: the demo-able loop is *see fixtures → predict → (admin set
 5. **i18n in MVP** — ship en/sq from the start or English-only for the hackathon?
 
 > Resolve these with the backend decisions before building, so the contract (types, auth, validation) stays symmetric on both sides.
+
+---
+
+## 12. Screens Inventory
+
+*(Harvested from the product spec; maps onto the feature folders in §3–§4. Tier tags reflect the MVP scope.)*
+
+**User-facing**
+
+| # | Screen | Key elements | Tier |
+|---|--------|--------------|------|
+| 1 | Home / Live feed | Upcoming matches (next 7 days), quick-predict CTA per match | spine |
+| 2 | Match detail | Score, venue, prediction input (main score; bonus fields tier 2) | spine |
+| 3 | Prediction slip | Active predictions, edit within deadline, submit | spine |
+| 4 | Global leaderboard | Filters (period/stage/country), current-user rank pinned | spine |
+| 5 | Group leaderboard | Private ranking, members only | tier 2 |
+| 6 | Match calendar | All 104 matches, filter by group/team/date/stage | spine |
+| 7 | Group-stage standings | 12 groups (A–L), points/goals/position | spine |
+| 8 | Profile | Stats, prediction history, rank chart, editable fields | tier 2 |
+| 9 | Groups | Create/join via 6-char invite code, manage members | tier 2 |
+| 10 | Notifications center | Reminders, deadline warnings, result/rank alerts | tier 2 |
+
+**Admin-facing**
+
+| # | Screen | Key elements | Tier |
+|---|--------|--------------|------|
+| 11 | Admin dashboard | Analytics: users, daily predictions, accuracy, active groups | tier 2 |
+| 12 | Match management | Set official results, cancel/postpone, audited re-settlement | spine |
+| 13 | Business-rules config | Points, multipliers, prediction windows | tier 2 |
+| 14 | User management | List/filter, block/activate | tier 2 |
+| 15 | Tournament config | Teams, groups, schedule, stadiums | tier 2 |
+| 16 | API sync config | Football API key, sync interval, manual override | tier 2 |
+
+## 13. Accessibility & UX Standards (WCAG 2.1 AA)
+
+- Color contrast ≥ 4.5:1 for text; never use color as the only indicator (pair with icon/label).
+- ARIA labels on icons, buttons, score displays, and prediction inputs; ARIA live regions for any real-time updates.
+- Visible focus states on all interactive elements; honor `prefers-reduced-motion`.
+- Minimum tap target 44×44px; base design at 375px, scaling to 768px and 1280px.
+- Skeleton screens on every load; inline prediction confirmation (no full-page redirects); plain-language errors with a resolution path; deadline countdown on match cards.
+
+## 14. SEO (public pages)
+
+- SSR/SSG for public pages (calendar, standings, match detail).
+- JSON-LD `schema.org/SportsEvent` per match; Open Graph + Twitter Card meta.
+- Title pattern: `France vs Argentina — Group C — World Cup 2026 Predictions`.
+- Core Web Vitals targets: LCP < 2.5s, CLS < 0.1, INP < 200ms.
+
+## 15. Notifications & Real-time (tier 2)
+
+Real-time score/leaderboard push and the notifications center are **tier 2** (not in the MVP spine, which is REST + poll/invalidate via TanStack Query). When built, triggers are: 24h before a match (users who haven't predicted), 1h before the window closes (open predictions), result confirmed (users who predicted), and rank change (that user). A real-time transport (e.g. SignalR) would be introduced here — it is **not** part of the MVP and is not yet reflected in the backend rules.
