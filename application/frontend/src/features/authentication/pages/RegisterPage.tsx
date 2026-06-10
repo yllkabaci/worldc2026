@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,7 +12,6 @@ export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const registerMutation = useRegister();
-  const [notice, setNotice] = useState<string | null>(null);
 
   const {
     register,
@@ -102,23 +100,6 @@ export function RegisterPage() {
           <button className="btn-main" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Creating…" : t("auth.register")}
           </button>
-
-          <div className="divider">
-            <div className="div-line" />
-            <span className="div-text">or sign up with</span>
-            <div className="div-line" />
-          </div>
-
-          {notice && <p className="notice" role="status">{notice}</p>}
-
-          <div className="oauth-row">
-            <button type="button" className="btn-oauth" onClick={() => setNotice("Social sign-up is coming soon.")}>
-              <span className="oauth-ico" aria-hidden="true">G</span> Google
-            </button>
-            <button type="button" className="btn-oauth" onClick={() => setNotice("Social sign-up is coming soon.")}>
-              <span className="oauth-ico" aria-hidden="true">f</span> Facebook
-            </button>
-          </div>
 
           <p className="signin-link"><Link to="/login">{t("auth.haveAccount")}</Link></p>
         </form>

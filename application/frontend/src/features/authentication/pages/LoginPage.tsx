@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -19,7 +18,6 @@ export function LoginPage() {
   const location = useLocation();
   const justRegistered = (location.state as LoginLocationState | null)?.justRegistered ?? false;
   const login = useLogin();
-  const [notice, setNotice] = useState<string | null>(null);
 
   const {
     register,
@@ -101,23 +99,6 @@ export function LoginPage() {
           <button className="btn-main" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Signing in…" : t("auth.login")}
           </button>
-
-          <div className="divider">
-            <div className="div-line" />
-            <span className="div-text">or log in with</span>
-            <div className="div-line" />
-          </div>
-
-          {notice && <p className="notice" role="status">{notice}</p>}
-
-          <div className="oauth-row">
-            <button type="button" className="btn-oauth" onClick={() => setNotice("Social sign-in is coming soon.")}>
-              <span className="oauth-ico" aria-hidden="true">G</span> Google
-            </button>
-            <button type="button" className="btn-oauth" onClick={() => setNotice("Social sign-in is coming soon.")}>
-              <span className="oauth-ico" aria-hidden="true">f</span> Facebook
-            </button>
-          </div>
 
           <p className="signin-link"><Link to="/register">{t("auth.noAccount")}</Link></p>
         </form>

@@ -19,7 +19,6 @@ The implemented immersive auth UI. Regenerate to this shape. Complements `auth-f
 - Title `auth.createAccount`. Fields: **Email**, **Password** (+ `auth.passwordHint`), **Confirm password** — bound to `registerSchema` (email; password mirrors BR-017: ≥8 chars, digit, uppercase, special; `confirmPassword` must match, client-only, never sent).
 - Submit (`auth.register`): `useRegister` → `POST /api/auth/register {email,password}` (no token returned) → `navigate("/login", { state: { justRegistered: true } })`.
 - Errors: `409` → `setError("email", auth.emailTaken)`; otherwise `applyProblemDetailsToForm` maps server field errors.
-- "or sign up with" **Google/Facebook are placeholders** (OAuth = tier 2): clicking shows a "coming soon" notice; not wired.
 - Footer link: `auth.haveAccount` → `/login`.
 
 ## Login card (`/login`)
@@ -27,7 +26,9 @@ The implemented immersive auth UI. Regenerate to this shape. Complements `auth-f
 - If navigated with `{ justRegistered: true }` → show `auth.registerSuccess` (green) at the top of the card.
 - Submit (`auth.login`): `useLogin` → `authStore.setSession(token)` → `navigate("/dashboard")`.
 - Errors: `401` → root error `auth.invalidCredentials`; otherwise `applyProblemDetailsToForm`.
-- OAuth placeholders + footer link `auth.noAccount` → `/register`.
+- Footer link `auth.noAccount` → `/register`.
+
+> Social sign-in (Google/Facebook) is **not** in the design — OAuth is tier 2; do not add social buttons.
 
 ## Conventions
 - React Hook Form + `zodResolver`. Inputs have `id` + `<label htmlFor>`, `aria-invalid`, errors in `<span role="alert">`; password hint via `aria-describedby` (see `forms-validation.md`, `i18n-a11y.md`).
