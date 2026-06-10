@@ -23,7 +23,7 @@ Read these before writing anything; they are the contract:
 Produce a short plan and resolve every choice:
 - **Feature & use case names** -> folder `Features/{FeatureName}/{UseCase}/`.
 - **Command or Query?** Writes -> `ICommand<T>`; reads -> `IQuery<T>` (see `mediatr-cqrs.md`).
-- **Route & verb**, and **auth policy** (`User` / `Admin` / `SuperAdmin`).
+- **Route & verb**, and **auth policy** (`User` / `Admin`).
 - **Aggregate(s) involved** and which **invariants** the domain must enforce (NOT the validator).
 - **Request/Response DTO** shapes.
 - **Input-shape validation** rules (ranges/required only) for the validator.

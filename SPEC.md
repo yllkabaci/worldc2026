@@ -47,10 +47,9 @@ The PRD is layered. Read in this order; each document owns one concern.
 ## 4. Actors & Roles
 
 - **User** — registered participant: predicts, views leaderboards, joins groups.
-- **Admin** — manages matches, sets official results, configures rules, manages users.
-- **Super Admin** — Admin plus the right to promote other admins.
+- **Admin** — manages matches, sets official results, configures rules, manages users. An account is an admin when its **`IsAdmin`** flag is true.
 
-Enforced by JWT authorization policies `User` / `Admin` / `SuperAdmin` (see `backend-architecture.md §6`).
+Two account types — **user** and **admin** — distinguished by a boolean **`IsAdmin`** flag. Enforced by JWT authorization policies `User` (any authenticated) / `Admin` (`IsAdmin`) — see `backend-architecture.md §6`.
 
 ---
 

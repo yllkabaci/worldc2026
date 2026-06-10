@@ -25,7 +25,7 @@ Produce a short plan and resolve every choice:
 - **Backend slice consumed** -> which endpoints/DTOs (from `backend-architecture.md` §4).
 - **Reads vs writes** -> which `useQuery` hooks and which `useMutation` hooks (see `server-state-tanstack-query.md`).
 - **Query keys** to add to `lib/api/queryKeys.ts`, and which keys a mutation must **invalidate**.
-- **Route(s) & role** -> the `ProtectedRoute` wrapper (`User` / `Admin` / `SuperAdmin`).
+- **Route(s) & role** -> the `ProtectedRoute` wrapper (`User` / `Admin`).
 - **DTO types** for each request/response (mirror the backend 1:1).
 - **Zod schema(s)** for any form (input-shape bounds only, mirroring backend validation).
 - **States to design**: loading / empty / error for every async surface; which errors are field-level vs toast (see `error-handling.md`).

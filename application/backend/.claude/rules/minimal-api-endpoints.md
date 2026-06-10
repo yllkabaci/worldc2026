@@ -44,7 +44,7 @@ public static class MakePredictionEndpoint
 - **HandleAsync**: private async method; binds, sends to MediatR, wraps the result.
 - **Route names**: constants from a `RouteNames` class - never magic strings.
 - **Metadata chain**: `.WithName()`, `.WithSummary()`, `.WithDescription()`, `.Produces<T>()`, `.ProducesProblem()`, `.ProducesValidationProblem()`.
-- **Authorization**: `.RequireAuthorization("<policy>")` on every protected endpoint (`User` / `Admin` / `SuperAdmin`).
+- **Authorization**: `.RequireAuthorization("<policy>")` on every protected endpoint (`User` / `Admin`).
 - **Mediation**: inject `ISender` via `[FromServices]`; map the request DTO to a command/query (`request.ToCommand(...)`) and `Send` it. The endpoint never references a handler type directly.
 - **CancellationToken**: always the last parameter with `= default`; it flows into `Send`.
 - **No `HttpContext` into MediatR**: an endpoint may take `HttpContext` to set request tags, but must not pass it into the command/handler (see `handler-no-httpcontext.md`).

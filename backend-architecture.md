@@ -16,7 +16,7 @@ The backend must satisfy a configurable, audited, fairness-critical scoring doma
 
 - **Correctness is the mission.** Points are money. Scoring must be deterministic, testable in isolation, and reproducible.
 - **Rules are configurable and versioned.** Admins change point values, multipliers, and the prediction window. Per the business doc (§8.2), *past matches are scored by the rules that were active at the time* — so scoring rules are **effective-dated** and a match is pinned to the rule set effective **as of its kickoff** (see §11).
-- **Two trust tiers.** Regular users vs. administrators (plus Super Admin), enforced by authorization policies.
+- **Two account types.** Regular users vs. administrators, distinguished by a boolean `IsAdmin` flag and enforced by authorization policies.
 - **External data is untrusted and may be unavailable.** Fixtures/results arrive from an external football API; the system must degrade gracefully and allow admin override.
 - **Auditability.** All administrative changes are written to an immutable audit log.
 
@@ -35,7 +35,7 @@ These drivers justify the layered separation, CQRS, the versioned scoring aggreg
 | AD-5 | Application mediation | **MediatR** with **`ICommand<T>` / `IQuery<T>`** markers | Endpoints map request → command/query → `ISender.Send`. |
 | AD-6 | Validation | **FluentValidation** in a **MediatR `ValidationBehavior`** | Centralised; returns RFC 7807 `400`. Validators check input shape only. |
 | AD-7 | Persistence | **EF Core** (SQLite for the hackathon run; SQL Server is the prod target) | Parameterised queries, migrations, `AsNoTracking` reads. |
-| AD-8 | AuthN/AuthZ | **JWT Bearer** + named **authorization policies** (`User`/`Admin`/`SuperAdmin`) | `RequireAuthorization("Admin")` etc. |
+| AD-8 | AuthN/AuthZ | **JWT Bearer** + named **authorization policies** (`User` / `Admin`, from the user's `IsAdmin` flag) | `RequireAuthorization("Admin")` etc. |
 | AD-9 | Errors | **Typed domain exceptions** → **`IExceptionHandler`** → RFC 7807 ProblemDetails | One global path; error codes `WC-NNNN`. |
 | AD-10 | Transactions | **`UnitOfWorkBehavior`** commits after a successful command | Handlers never call `SaveChanges`; one commit per command. |
 | AD-11 | Observability | **Serilog** (structured JSON) + **OpenTelemetry** + **Health Checks** + correlation id | Operable from day one. See `.claude/rules/observability.md`. |
@@ -57,7 +57,7 @@ These drivers justify the layered separation, CQRS, the versioned scoring aggreg
       Matches/                #   Match (root), MatchStatus, Score (VO), domain events
       Predictions/            #   Prediction (root), BonusPrediction (VO)
       Scoring/                #   ScoringRuleSet (versioned), StageMultiplier, PointsBreakdown (VO), ScoringService (pure)
-      Users/                  #   User, Role, AccountStatus
+      Users/                  #   User (IsAdmin flag), AccountStatus
       Groups/                 #   Group, InviteCode (VO), Membership
       Audit/                  #   AuditLogEntry
       Exceptions/             #   DomainException base + typed exceptions, ErrorCodes
@@ -145,7 +145,7 @@ The endpoint is **transport only**: bind → map to command → `Send` → wrap 
 | Scoring | SettleMatch (internal command triggered by SetOfficialResult) | system |
 | Admin · Matches | SetOfficialResult, CancelOrPostponeMatch (UC-A10–11) | Admin |
 | Admin · Config | ConfigurePointsSystem, ConfigurePredictionWindow, ConfigureGroupRules (UC-A03–05) | Admin |
-| Admin · Users | ListUsers, BlockOrActivate, PromoteToAdmin (UC-A07–09) | Admin / SuperAdmin |
+| Admin · Users | ListUsers, BlockOrActivate, PromoteToAdmin (UC-A07–09) | Admin |
 | Admin · Reports | AnalyticsDashboard, ExportData (UC-A12–13) | Admin |
 
 ---
@@ -176,7 +176,7 @@ The endpoint is **transport only**: bind → map to command → `Send` → wrap 
 ## 6. Security
 
 - **Authentication:** JWT Bearer. Identities originate from local registration (hashed passwords, BR-017) or OAuth providers (Google/Facebook, UC-U02). An `IJwtIssuer` mints tokens carrying `sub`, `role`, and `email` claims.
-- **Authorization policies:** `"User"`, `"Admin"`, `"SuperAdmin"`, registered once and applied per endpoint via `.RequireAuthorization("…")`. Blocked accounts (BR-009/BR-018) fail the check.
+- **Authorization policies:** `"User"` (any authenticated) and `"Admin"` (the user's `IsAdmin` flag), registered once and applied per endpoint via `.RequireAuthorization("…")`. The JWT `role` claim is `Admin` or `User`, derived from `IsAdmin` at login. Blocked accounts (BR-009/BR-018) fail the check.
 - **Current user in handlers** via `ICurrentUserService` (backed by `IHttpContextAccessor`), never by reading `HttpContext` in a handler (see `handler-no-httpcontext.md`).
 - **Input validation:** FluentValidation in the `ValidationBehavior` (input shape only; ranges per BR-010/BR-024–028). Business invariants live in the domain (see `business-rule-placement.md`).
 - **Data protection:** EF Core parameterised queries only; passwords hashed (never logged); PII masked in logs. Lockout after 5 failed logins for 15 min (BR-018); sessions expire after 24h (BR-019).

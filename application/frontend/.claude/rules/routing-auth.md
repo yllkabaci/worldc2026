@@ -7,12 +7,12 @@ paths:
 
 # Routing & Auth
 
-Routing uses **React Router**. Role-gated screens sit behind `ProtectedRoute` wrappers that mirror the backend authorization policies (backend `minimal-api-endpoints.md` — `RequireAuthorization("User"|"Admin"|"SuperAdmin")`). The client gate is UX; the server still enforces the policy on every request.
+Routing uses **React Router**. Role-gated screens sit behind `ProtectedRoute` wrappers that mirror the backend authorization policies (backend `minimal-api-endpoints.md` — `RequireAuthorization("User"|"Admin")`). The client gate is UX; the server still enforces the policy on every request.
 
 ## ProtectedRoute
 ```tsx
 // lib/auth/ProtectedRoute.tsx
-interface Props { role: "User" | "Admin" | "SuperAdmin"; children: ReactNode; }
+interface Props { role: "User" | "Admin"; children: ReactNode; }
 
 export function ProtectedRoute({ role, children }: Props) {
   const { isAuthenticated, hasRole } = useAuth();
@@ -30,7 +30,7 @@ export function ProtectedRoute({ role, children }: Props) {
 ```
 
 ## Rules
-- **Every protected route** is wrapped in the correct `ProtectedRoute` mapping to the backend policy: `RequireUser` / `RequireAdmin` / `RequireSuperAdmin`. Admin screens go behind `Admin`.
+- **Every protected route** is wrapped in the correct `ProtectedRoute` mapping to the backend policy: `User` (any authenticated) or `Admin` (the user's `IsAdmin`). Admin screens go behind `Admin`.
 - **Unauthorised** access redirects to login (`401` shape) or shows a `403` view — never silently renders the screen.
 - **Auth state lives in `lib/auth`** (`authStore`, `useAuth`); features read it, never reinvent it.
 - **Token storage (decided):** access token in **memory only** for the MVP — no refresh token, so a full reload logs the user out and they re-authenticate (mirrors the backend minimal-auth decision). An HttpOnly refresh cookie is **tier 2**. Full flow in `auth-flow.md`.

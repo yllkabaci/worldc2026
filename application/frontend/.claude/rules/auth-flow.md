@@ -18,10 +18,10 @@ interface JwtClaims { sub: string; email: string; role: string | string[]; exp: 
 ```
 
 ## `useAuth()` (`lib/auth/useAuth`)
-Exposes `{ isAuthenticated, user, roles, hasRole, login, logout }`. Features read auth **only** through this hook — they never touch the store directly or re-decode tokens.
+Exposes `{ isAuthenticated, user, roles, isAdmin, hasRole, logout }`. Features read auth **only** through this hook — they never touch the store directly or re-decode tokens.
 
-### Role hierarchy (mirror backend policies)
-`hasRole` honours the backend hierarchy (see backend `auth-and-authorization.md`): `User` is satisfied by `User|Admin|SuperAdmin`; `Admin` by `Admin|SuperAdmin`; `SuperAdmin` by `SuperAdmin`.
+### Roles (mirror backend policies)
+Two roles only. Every authenticated account satisfies `User`; an account with the backend **`IsAdmin`** flag also has `Admin` (the JWT `role` claim is `Admin` or `User`). `hasRole("Admin")` ⇒ roles include `Admin`; `hasRole("User")` ⇒ authenticated. `isAdmin` is exposed for convenience.
 
 ## Login
 - `useLogin` mutation → `POST /api/auth/login` → on success `authStore.setSession(token)` then navigate to the intended route (or `/`).
@@ -44,7 +44,7 @@ Exposes `{ isAuthenticated, user, roles, hasRole, login, logout }`. Features rea
 - **Never** store the token in `localStorage`/`sessionStorage`; **never** log the token or decoded claims; clear everything on logout. Role gating is convenience — authority is the backend policy.
 
 ## Testing
-- Unit-test `hasRole` hierarchy and `decodeToken`. Test `ProtectedRoute` redirects (unauthenticated → login, wrong role → 403). Test login success (session set, redirect) and failure (`401` → error, no session). Inject a fake `authStore`/token; never call a real backend (see `testing-conventions.md`).
+- Unit-test `hasRole`/`isAdmin` and `decodeToken`. Test `ProtectedRoute` redirects (unauthenticated → login, wrong role → 403). Test login success (session set, redirect) and failure (`401` → error, no session). Inject a fake `authStore`/token; never call a real backend (see `testing-conventions.md`).
 
 ## Forbidden
 No token in web storage; no logging tokens/claims; no client-only authorization treated as security; no bespoke `fetch` for auth calls (use the api-client); no re-decoding tokens outside `lib/auth`.

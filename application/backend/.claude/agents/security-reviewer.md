@@ -12,7 +12,7 @@ World Cup 2026 Prediction API (.NET, ASP.NET Core Minimal APIs), EF Core, Serilo
 
 ## Authentication & Authorization Model
 - **JWT Bearer** authentication is enforced in the API. Tokens carry `sub`, `email`, and `role` claims.
-- Authorization is **policy-based**: `User`, `Admin`, `SuperAdmin`. Every protected endpoint declares `.RequireAuthorization("<policy>")`.
+- Authorization is **policy-based**: `User` (any authenticated) and `Admin` (the user's `IsAdmin` flag). Every protected endpoint declares `.RequireAuthorization("<policy>")`.
 - Identity inside handlers comes from `ICurrentUserService` (never read claims from `HttpContext` in a handler).
 - The only legitimately anonymous endpoints are health checks and auth (login/register/OAuth callback).
 

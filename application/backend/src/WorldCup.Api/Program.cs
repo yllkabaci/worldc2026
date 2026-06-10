@@ -97,9 +97,8 @@ builder.Services
     });
 
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("User", p => p.RequireRole("User", "Admin", "SuperAdmin"))
-    .AddPolicy("Admin", p => p.RequireRole("Admin", "SuperAdmin"))
-    .AddPolicy("SuperAdmin", p => p.RequireRole("SuperAdmin"));
+    .AddPolicy("User", p => p.RequireRole("User", "Admin"))
+    .AddPolicy("Admin", p => p.RequireRole("Admin"));
 
 // --- Errors, OpenAPI, health, CORS, features ---
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

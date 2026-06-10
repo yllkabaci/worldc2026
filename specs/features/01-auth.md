@@ -23,7 +23,7 @@ Lets a visitor create an account and sign in, returning a JWT used for all prote
 - `IJwtIssuer` (Infrastructure) mints tokens; password hasher hashes/verifies. No external OAuth provider in the MVP.
 
 ## Domain Notes
-- `User` aggregate: email, hashed password, `Role` (User/Admin/SuperAdmin), `AccountStatus` (Active/Blocked). Factory rejects invalid email/password.
+- `User` aggregate: email, hashed password, **`IsAdmin` (bool, default false)**, `AccountStatus` (Active/Blocked). Factory rejects invalid email/password; registration always creates a non-admin user.
 
 ## Validation (input shape only)
 - Email present and well-formed; password meets BR-017 (≥8 chars, ≥1 digit, ≥1 uppercase, ≥1 special). Business invariants (uniqueness) enforced in the domain/handler.

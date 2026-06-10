@@ -17,7 +17,7 @@ public class UserTests
 
         // Assert
         user.Email.Should().Be("jane@example.com");
-        user.Role.Should().Be(Role.User);
+        user.IsAdmin.Should().BeFalse();
         user.Status.Should().Be(AccountStatus.Active);
         user.IsActive.Should().BeTrue();
         user.DomainEvents.Should().ContainSingle(e => e is UserRegisteredEvent);

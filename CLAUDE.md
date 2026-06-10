@@ -16,7 +16,7 @@ A World Cup 2026 prediction & scoring platform. The full PRD is `SPEC.md` (index
 | Backend | **.NET 10** ASP.NET Core **Minimal APIs** (no MVC controllers) |
 | Pattern | **MediatR CQRS** (`ICommand`/`IQuery`), vertical slices |
 | Persistence | **EF Core** — SQLite for the run, SQL Server prod target |
-| Auth | **JWT Bearer** + policies (`User`/`Admin`/`SuperAdmin`) |
+| Auth | **JWT Bearer** + policies (`User`/`Admin`, from the user's `IsAdmin` flag) |
 | Errors | **Typed domain exceptions → RFC 7807** (`WC-NNNN`) |
 | Frontend | **React 18 + TypeScript + Vite** |
 | Server state | **TanStack Query** (no `useEffect` fetching) |

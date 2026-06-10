@@ -25,9 +25,9 @@ How identity and access control work. Binding spec — the auth layer should be 
 - Handlers read identity through **`ICurrentUserService`** (`UserId`, `Email`, `Roles`, `IsAuthenticated`) — backed by `IHttpContextAccessor` in the API. **Never** read claims from `HttpContext` inside a handler, and never thread a `UserId` through commands solely for identity (see `handler-no-httpcontext.md`). `CurrentUserService` reads both the raw (`sub`/`email`) and mapped (`ClaimTypes.*`) claims so it is robust to inbound-claim mapping.
 
 ## Authorization (policies)
-- Three named policies, registered once: **`User`**, **`Admin`**, **`SuperAdmin`**, with a hierarchy — `User` is satisfied by `User|Admin|SuperAdmin`; `Admin` by `Admin|SuperAdmin`; `SuperAdmin` by `SuperAdmin`.
+- Two named policies, registered once: **`User`** (any authenticated account) and **`Admin`** (accounts whose **`IsAdmin`** flag is true). The JWT carries a `role` claim of `Admin` or `User`, derived from `IsAdmin` at login. There is no SuperAdmin — there are exactly two account types.
 - Every protected endpoint declares `.RequireAuthorization("<policy>")` (see `minimal-api-endpoints.md`). The **only** legitimately anonymous endpoints are auth (register/login/oauth-callback) and health (`/healthz`, `/readyz`); Swagger UI is dev-only.
-- Admin/Super-Admin operations are gated by the matching policy. Authorization decisions trust the **validated token's** role claims — never a client-supplied role/email beyond the token.
+- Admin operations are gated by the `Admin` policy. Authorization decisions trust the **validated token's** role claim — never a client-supplied role/email beyond the token.
 - Blocked accounts (BR-009) cannot authenticate or act; enforced in the domain/handler. Account lockout after 5 failed logins for 15 min (BR-018) and 24h session expiry (BR-019) are **tier 2**.
 
 ## Errors

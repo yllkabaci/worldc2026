@@ -19,7 +19,8 @@ public sealed class LoginHandler(IApplicationDbContext db, IPasswordHasher hashe
             throw new InvalidCredentialsException();
         }
 
-        var token = jwt.IssueToken(user.Id.Value, user.Email, new[] { user.Role.ToString() });
+        var role = user.IsAdmin ? "Admin" : "User";
+        var token = jwt.IssueToken(user.Id.Value, user.Email, new[] { role });
         return new LoginResponse { Token = token };
     }
 }

@@ -15,7 +15,7 @@
 - **Contract-first against the API.** The SPA holds **no scoring or business logic** — it renders what the API returns and submits intent. All correctness lives server-side; the UI mirrors validation only for fast feedback (§5).
 - **Server state ≠ client state.** Matches, predictions, and leaderboards are *server state* (cached, synchronized via TanStack Query). Auth/session and UI toggles are *client state*.
 - **Resilient UX.** Every async surface has loading, empty, and error states; runtime crashes are contained by error boundaries.
-- **Two trust tiers + locale.** User vs Admin (vs Super Admin) gate routes; the app ships English/Albanian (business doc §9.1).
+- **Two trust tiers + locale.** User vs Admin (by the backend `IsAdmin` flag) gate routes; the app ships English/Albanian (business doc §9.1).
 
 ---
 
@@ -138,7 +138,7 @@ Each frontend feature consumes the matching backend slice (`backend-architecture
 ## 8. Security & Routing
 
 - **Token storage (decided):** access token **in memory only** for the MVP — no refresh token, so a full reload logs the user out and they re-authenticate (mirrors the backend minimal-auth decision). HttpOnly refresh cookie is **tier 2**. Never `localStorage`/`sessionStorage`; never log tokens. Full client flow in `application/frontend/.claude/rules/auth-flow.md`.
-- **`ProtectedRoute` wrappers** read auth state and gate by role, mirroring backend policies: `RequireUser`, `RequireAdmin`, `RequireSuperAdmin`. Unauthorised access redirects (login) or shows a `403` view. Admin screens live behind `RequireAdmin`.
+- **`ProtectedRoute` wrappers** read auth state and gate by role, mirroring backend policies: `User` (any authenticated) and `Admin` (the user's `IsAdmin`). Unauthorised access redirects (login) or shows a `403` view. Admin screens live behind the `Admin` gate.
 - Never store secrets in client state; never log tokens.
 
 ---

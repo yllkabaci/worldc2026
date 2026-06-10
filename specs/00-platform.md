@@ -34,7 +34,7 @@ A compiling .NET solution with three projects (Api / Infrastructure / Domain) an
 - `Common/Behaviors/`: `LoggingBehavior`, `ValidationBehavior`, `UnitOfWorkBehavior` registered in order Logging → Validation → UnitOfWork → handler.
 - `Common/`: `ApiResponse<T>` + `.ToApiResponse()` / `.ToApiListResponse()` extensions; `GlobalExceptionHandler : IExceptionHandler` with the `ErrorCodes → HTTP status` map; `RouteNames` constants class (empty); module-scanning that discovers `IFeatureModule` / `IEndpointModule` across the assembly.
 - CQRS marker interfaces: `ICommand<T>`, `IQuery<T>`, `ICommandHandler<,>`, `IQueryHandler<,>`.
-- `Program.cs`: JSON defaults (camelCase, enums as strings), JWT bearer + the `User`/`Admin`/`SuperAdmin` policies, MediatR + FluentValidation assembly scan, `AddInfrastructure`, exception handler, health checks, **Swagger / OpenAPI (Swashbuckle) with a JWT bearer security scheme**, feature-module discovery, CORS for the frontend dev origin.
+- `Program.cs`: JSON defaults (camelCase, enums as strings), JWT bearer + the `User`/`Admin` policies, MediatR + FluentValidation assembly scan, `AddInfrastructure`, exception handler, health checks, **Swagger / OpenAPI (Swashbuckle) with a JWT bearer security scheme**, feature-module discovery, CORS for the frontend dev origin.
 
 ### Tests
 - `WorldCup.Tests.Helpers` with an empty `TestData/` and a `WebApplicationFactory` fixture configured for **SQLite/in-memory** with an overridable `IClock` and the football-API twin (per `testing-conventions.md`).
