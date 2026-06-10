@@ -13,5 +13,7 @@ public enum ErrorCodes
     // 1000-1999 External service errors
     FootballApiUnavailable, // WC-1001
 
-    // 5000-5999 Feature / business-rule violations (added as features land)
+    // 5000-5999 Feature / business-rule violations
+    EmailAlreadyExists, // WC-5101
+    InvalidCredentials, // WC-5102
 }

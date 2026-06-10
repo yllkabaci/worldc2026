@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using WorldCup.Domain.Abstractions;
 using WorldCup.Infrastructure.Persistence;
 
 namespace WorldCup.Tests.Helpers;
@@ -11,6 +13,9 @@ namespace WorldCup.Tests.Helpers;
 public sealed class WorldCupApiFactory : WebApplicationFactory<Program>
 {
     private SqliteConnection? _connection;
+
+    /// <summary>Controllable clock shared with the API host. Set Clock.UtcNow to drive time-dependent tests.</summary>
+    public TestClock Clock { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -30,6 +35,9 @@ public sealed class WorldCupApiFactory : WebApplicationFactory<Program>
             _connection = new SqliteConnection("DataSource=:memory:");
             _connection.Open();
             services.AddDbContext<ApplicationDbContext>(o => o.UseSqlite(_connection));
+
+            services.RemoveAll<IClock>();
+            services.AddSingleton<IClock>(Clock);
 
             using var scope = services.BuildServiceProvider().CreateScope();
             scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreated();

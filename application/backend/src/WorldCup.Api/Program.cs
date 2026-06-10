@@ -32,11 +32,21 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
 
 // --- Configuration ---
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? "Data Source=worldcup.db";
+var signingKey = builder.Configuration["Jwt:SigningKey"];
+if (string.IsNullOrWhiteSpace(signingKey))
+{
+    if (builder.Environment.IsProduction())
+    {
+        throw new InvalidOperationException("Jwt:SigningKey must be configured (env/secret) in Production.");
+    }
+    // Non-production fallback only; this key is insecure and never used in Production.
+    signingKey = "dev-only-insecure-key-not-for-production-change-me-0123456789";
+}
 var jwt = new JwtSettings
 {
     Issuer = builder.Configuration["Jwt:Issuer"] ?? "worldcup",
     Audience = builder.Configuration["Jwt:Audience"] ?? "worldcup",
-    SigningKey = builder.Configuration["Jwt:SigningKey"] ?? "dev-only-signing-key-change-me-please-32chars",
+    SigningKey = signingKey,
     ExpiryMinutes = int.TryParse(builder.Configuration["Jwt:ExpiryMinutes"], out var m) ? m : 60 * 24
 };
 

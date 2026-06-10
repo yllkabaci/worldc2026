@@ -1,3 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Pure domain: no framework or infrastructure package references. -->
+  <!-- Domain holds aggregates, value objects, events. The only external reference is EF Core,
+       used solely by the IApplicationDbContext persistence-boundary abstraction. Aggregates/VOs
+       carry no EF attributes; mapping lives in Infrastructure. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
 </Project>

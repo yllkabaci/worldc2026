@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WorldCup.Domain.Abstractions;
+using WorldCup.Domain.Users;
 
 namespace WorldCup.Infrastructure.Persistence;
 
@@ -7,6 +8,8 @@ namespace WorldCup.Infrastructure.Persistence;
 public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : DbContext(options), IApplicationDbContext
 {
+    public DbSet<User> Users => Set<User>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

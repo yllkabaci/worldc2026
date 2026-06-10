@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -51,8 +52,17 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
     {
         ValidationException => (StatusCodes.Status400BadRequest, "Validation failed", ErrorCodes.ValidationError.ToString()),
         DomainException dex => (StatusFor(dex.Code), dex.Code.ToString(), dex.Code.ToString()),
+        DbUpdateException dbu when IsUniqueViolation(dbu) =>
+            (StatusCodes.Status409Conflict, "Conflict", ErrorCodes.Conflict.ToString()),
         _ => (StatusCodes.Status500InternalServerError, "Server error", null)
     };
+
+    private static bool IsUniqueViolation(DbUpdateException ex)
+    {
+        var message = ex.InnerException?.Message ?? ex.Message;
+        return message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
+    }
 
     private static int StatusFor(ErrorCodes code) => code switch
     {
@@ -61,6 +71,8 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
         ErrorCodes.Forbidden => StatusCodes.Status403Forbidden,
         ErrorCodes.NotFound => StatusCodes.Status404NotFound,
         ErrorCodes.Conflict => StatusCodes.Status409Conflict,
+        ErrorCodes.EmailAlreadyExists => StatusCodes.Status409Conflict,
+        ErrorCodes.InvalidCredentials => StatusCodes.Status401Unauthorized,
         ErrorCodes.FootballApiUnavailable => StatusCodes.Status503ServiceUnavailable,
         _ => StatusCodes.Status500InternalServerError
     };

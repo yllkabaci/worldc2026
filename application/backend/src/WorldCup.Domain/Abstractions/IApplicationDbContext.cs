@@ -1,10 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using WorldCup.Domain.Users;
+
 namespace WorldCup.Domain.Abstractions;
 
 /// <summary>
-/// Persistence boundary used by handlers. Feature DbSets are added here as aggregates are introduced.
-/// Kept minimal in the skeleton (zero features). The UnitOfWork behavior is the only caller of SaveChangesAsync.
+/// Persistence boundary used by handlers. One DbSet per aggregate root, added as features land.
+/// The UnitOfWork behavior is the only caller of SaveChangesAsync.
 /// </summary>
 public interface IApplicationDbContext
 {
+    DbSet<User> Users { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
