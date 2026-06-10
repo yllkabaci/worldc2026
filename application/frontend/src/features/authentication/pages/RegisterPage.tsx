@@ -1,37 +1,31 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { loginSchema, type LoginFormValues } from "../schemas/loginSchema";
-import { useLogin } from "../api/useLogin";
+import { registerSchema, type RegisterFormValues } from "../schemas/registerSchema";
+import { useRegister } from "../api/useRegister";
 import { applyProblemDetailsToForm } from "../../../lib/forms/applyProblemDetailsToForm";
 import type { ProblemDetails } from "../../../lib/api/problemDetails";
 
-interface LoginLocationState {
-  justRegistered?: boolean;
-}
-
-export function LoginPage() {
+export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const justRegistered = (location.state as LoginLocationState | null)?.justRegistered ?? false;
-  const login = useLogin();
+  const registerMutation = useRegister();
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async ({ email, password }) => {
     try {
-      await login.mutateAsync(values);
-      navigate("/dashboard");
+      await registerMutation.mutateAsync({ email, password });
+      navigate("/login", { state: { justRegistered: true } });
     } catch (e) {
       const problem = e as ProblemDetails;
-      if (problem.status === 401) {
-        setError("root", { type: "server", message: t("auth.invalidCredentials") });
+      if (problem.status === 409) {
+        setError("email", { type: "server", message: t("auth.emailTaken") });
       } else {
         applyProblemDetailsToForm(problem, setError);
       }
@@ -40,12 +34,7 @@ export function LoginPage() {
 
   return (
     <main className="container">
-      <h1>{t("auth.login")}</h1>
-      {justRegistered && (
-        <p className="status status--ok" role="status">
-          {t("auth.registerSuccess")}
-        </p>
-      )}
+      <h1>{t("auth.createAccount")}</h1>
       <form onSubmit={onSubmit} noValidate>
         {errors.root && (
           <p className="error" role="alert">
@@ -63,19 +52,42 @@ export function LoginPage() {
         </div>
         <div className="field">
           <label htmlFor="password">{t("auth.password")}</label>
-          <input id="password" type="password" autoComplete="current-password" {...register("password")} />
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            aria-describedby="password-hint"
+            {...register("password")}
+          />
+          <span id="password-hint" className="hint">
+            {t("auth.passwordHint")}
+          </span>
           {errors.password && (
             <span className="error" role="alert">
               {errors.password.message}
             </span>
           )}
         </div>
+        <div className="field">
+          <label htmlFor="confirmPassword">{t("auth.confirmPassword")}</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            {...register("confirmPassword")}
+          />
+          {errors.confirmPassword && (
+            <span className="error" role="alert">
+              {errors.confirmPassword.message}
+            </span>
+          )}
+        </div>
         <button className="btn" type="submit" disabled={isSubmitting}>
-          {t("auth.login")}
+          {t("auth.register")}
         </button>
       </form>
       <p>
-        <Link to="/register">{t("auth.noAccount")}</Link>
+        <Link to="/login">{t("auth.haveAccount")}</Link>
       </p>
     </main>
   );

@@ -5,6 +5,15 @@
   "status.healthy": "Healthy",
   "status.unreachable": "Unreachable",
   "auth.login": "Log in",
+  "auth.register": "Sign up",
+  "auth.createAccount": "Create account",
   "auth.email": "Email",
-  "auth.password": "Password"
+  "auth.password": "Password",
+  "auth.confirmPassword": "Confirm password",
+  "auth.passwordHint": "At least 8 characters, including an uppercase letter, a number, and a special character.",
+  "auth.invalidCredentials": "Invalid email or password.",
+  "auth.emailTaken": "An account with this email already exists.",
+  "auth.registerSuccess": "Account created. Please log in.",
+  "auth.haveAccount": "Already have an account? Log in",
+  "auth.noAccount": "Need an account? Sign up"
 }

@@ -6,7 +6,7 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 30_000,
       retry: (failureCount, error) => {
-        const status = (error as ProblemDetails)?.status ?? 0;
+        const status = (error as unknown as ProblemDetails)?.status ?? 0;
         if (status >= 400 && status < 500) return false; // don't retry client errors
         return failureCount < 2;
       },

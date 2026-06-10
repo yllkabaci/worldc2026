@@ -5,6 +5,15 @@
   "status.healthy": "Në rregull",
   "status.unreachable": "I paarritshëm",
   "auth.login": "Hyr",
+  "auth.register": "Regjistrohu",
+  "auth.createAccount": "Krijo llogari",
   "auth.email": "Email",
-  "auth.password": "Fjalëkalimi"
+  "auth.password": "Fjalëkalimi",
+  "auth.confirmPassword": "Konfirmo fjalëkalimin",
+  "auth.passwordHint": "Të paktën 8 karaktere, përfshirë një shkronjë të madhe, një numër dhe një karakter special.",
+  "auth.invalidCredentials": "Email ose fjalëkalim i pasaktë.",
+  "auth.emailTaken": "Një llogari me këtë email ekziston tashmë.",
+  "auth.registerSuccess": "Llogaria u krijua. Ju lutemi hyni.",
+  "auth.haveAccount": "Keni tashmë një llogari? Hyni",
+  "auth.noAccount": "Nuk keni llogari? Regjistrohu"
 }

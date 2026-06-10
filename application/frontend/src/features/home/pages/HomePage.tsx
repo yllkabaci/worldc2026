@@ -25,6 +25,8 @@ export function HomePage() {
       </section>
       <nav>
         <Link to="/login">{t("auth.login")}</Link>
+        {" · "}
+        <Link to="/register">{t("auth.register")}</Link>
       </nav>
     </main>
   );
