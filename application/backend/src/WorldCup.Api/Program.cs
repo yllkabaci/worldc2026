@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using MediatR;
+using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -11,6 +12,7 @@ using WorldCup.Api.Common.Modules;
 using WorldCup.Api.Common.Services;
 using WorldCup.Domain.Abstractions;
 using WorldCup.Infrastructure;
+using WorldCup.Infrastructure.ExternalApis;
 using WorldCup.Infrastructure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,8 +32,15 @@ var jwt = new JwtSettings
     ExpiryMinutes = int.TryParse(builder.Configuration["Jwt:ExpiryMinutes"], out var m) ? m : 60 * 24
 };
 
+var footballData = new FootballDataOptions
+{
+    BaseUrl = builder.Configuration["FootballData:BaseUrl"] ?? "https://api.football-data.org/v4/",
+    ApiToken = builder.Configuration["FootballData:ApiToken"] ?? "",
+    CompetitionCode = builder.Configuration["FootballData:CompetitionCode"] ?? "WC"
+};
+
 // --- Infrastructure ---
-builder.Services.AddInfrastructure(connectionString, jwt);
+builder.Services.AddInfrastructure(connectionString, jwt, footballData);
 
 // --- MediatR + pipeline behaviors (order: Logging -> Validation -> UnitOfWork -> handler) ---
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssembly(typeof(Program).Assembly));
@@ -77,7 +86,24 @@ builder.Services.AddAuthorizationBuilder()
 // --- Errors, OpenAPI, health, CORS, features ---
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(o =>
+{
+    o.SwaggerDoc("v1", new OpenApiInfo { Title = "World Cup 2026 Prediction API", Version = "v1" });
+
+    var jwtScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "Paste your JWT access token (without the 'Bearer ' prefix).",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+    };
+    o.AddSecurityDefinition("Bearer", jwtScheme);
+    o.AddSecurityRequirement(new OpenApiSecurityRequirement { { jwtScheme, Array.Empty<string>() } });
+});
 builder.Services.AddHealthChecks();
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
@@ -89,7 +115,12 @@ app.UseExceptionHandler();
 app.UseSerilogRequestLogging();
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(o =>
+    {
+        o.SwaggerEndpoint("/swagger/v1/swagger.json", "World Cup 2026 API v1");
+        o.DocumentTitle = "World Cup 2026 Prediction API";
+    });
 }
 app.UseCors();
 app.UseAuthentication();

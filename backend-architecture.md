@@ -39,6 +39,7 @@ These drivers justify the layered separation, CQRS, the versioned scoring aggreg
 | AD-9 | Errors | **Typed domain exceptions** → **`IExceptionHandler`** → RFC 7807 ProblemDetails | One global path; error codes `WC-NNNN`. |
 | AD-10 | Transactions | **`UnitOfWorkBehavior`** commits after a successful command | Handlers never call `SaveChanges`; one commit per command. |
 | AD-11 | Observability | **Serilog** (structured JSON) + **OpenTelemetry** + **Health Checks** | Operable from day one. *(Not yet covered by a rule — see §14.)* |
+| AD-12 | API docs | **Swagger UI via Swashbuckle** (OpenAPI v3) with a JWT bearer security scheme | Interactive docs + an `Authorize` button in Development; `/swagger/v1/swagger.json` feeds the frontend's type generation. Served only in Development. |
 
 > **Why not Carter or FastEndpoints (AD-4).** Both implement REPR, but MediatR (AD-5) already owns the handler abstraction, and we want zero third-party routing dependencies for a time-boxed build. Endpoints are plain Minimal-API static classes (`Map` + `HandleAsync`); each feature's `IEndpointModule` maps its endpoints, and modules are auto-discovered by assembly scan. See `.claude/rules/minimal-api-endpoints.md` and `vertical-slice-architecture.md`.
 
@@ -208,7 +209,7 @@ See the `security-reviewer` agent for the review checklist.
 - **Read path:** queries `AsNoTracking()`, project straight to response DTOs.
 - **`ValueTask`** for hot, often-synchronous abstractions (clock/cache).
 - **`cancellationToken`** (full name) propagates from every endpoint delegate → MediatR handler → EF Core / `HttpClient`. No sync-over-async. See `.claude/rules/async-patterns.md`.
-- **External football API** behind `IFootballApi` with timeout + retry and a **deterministic twin** for local/dev and verification (no live calls during the build). Admin override wins over imported data (UC-A02/§8.3).
+- **External football API** behind `IFootballApi` — provider **football-data.org** (v4, `X-Auth-Token` header, competition code `WC`), implemented by `FootballDataOrgClient` (typed `HttpClient`, timeout + retry). A **deterministic twin** is used for local/dev/tests and when no API token is configured (no live calls during the build). Admin override wins over imported data (UC-A02/§8.3). Scoring needs the regulation 90-minute score — verify the provider's ET field mapping (see `specs/features/02-matches.md`).
 
 ---
 

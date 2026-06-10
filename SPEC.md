@@ -137,6 +137,7 @@ All previously open decisions are now settled (resolved with the team):
 7. **Knockout scoring** — uses the **regulation 90-minute** result (extra time and shootouts ignored).
 8. **Tier-2 pulled into the MVP spine** — **cancel/postpone match**, **re-settlement with double-confirmation + audit**, and **leaderboard filters** (period/stage/country). Blocked-user removal stays tier 2.
 9. **Runtime** — **.NET 10 (LTS)**.
+10. **Fixture data source** — **football-data.org** (v4 API, `X-Auth-Token` header, competition code `WC`). The MVP uses the deterministic twin for tests/holdout; a real `FootballDataOrgClient` pulls fixtures/results when an API token is configured (live sync remains tier 2). Scoring uses the regulation 90-minute result — the provider field mapping for knockouts that go to extra time must be verified against a live sample.
 
 > Governing principle still applies: if any *new* ambiguity surfaces during the build, halt and clarify — do not guess.
 

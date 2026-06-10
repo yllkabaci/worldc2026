@@ -101,7 +101,7 @@ Each frontend feature consumes the matching backend slice (`backend-architecture
 
 ## 5. Types, Forms & Validation (contract symmetry)
 
-- **TypeScript-first, strict, no `any`.** Every request/response has an explicit type in `features/<x>/types.ts` that maps 1:1 to the backend DTO. Treat the backend as the contract owner; if it exposes OpenAPI, generate types from it — otherwise hand-mirror and keep in sync. Note: the backend wraps success payloads in an **`ApiResponse<T>`** envelope, so types model the **inner** payload `T` and the client unwraps the envelope (see §6).
+- **TypeScript-first, strict, no `any`.** Every request/response has an explicit type in `features/<x>/types.ts` that maps 1:1 to the backend DTO. Treat the backend as the contract owner; it exposes **Swagger/OpenAPI at `/swagger/v1/swagger.json`** (Development) — generate types from it, or hand-mirror and keep in sync. Note: the backend wraps success payloads in an **`ApiResponse<T>`** envelope, so types model the **inner** payload `T` and the client unwraps the envelope (see §6).
 - **Functional components** with explicit `interface Props {}`. No class components (except the Error Boundary).
 - **React Hook Form + Zod**: each form has a Zod schema that **mirrors the backend FluentValidation rules** so the user gets instant feedback, e.g. prediction goals `0–20` integer (BR-010), yellow cards `0–20` (BR-024), red cards `0–10` (BR-025), subs `0–5` per team (BR-028). Client validation is a UX convenience — **the server remains the source of truth**.
 - **Performance:** apply `useMemo`/`useCallback`/`React.memo` only where a measured re-render problem exists (e.g. large leaderboard lists) — not by default.
@@ -166,7 +166,7 @@ Keep the UI thin: the demo-able loop is *see fixtures → predict → (admin set
 
 1. **Token storage / auth model** — in-memory + HttpOnly refresh vs simple in-memory for the hackathon; depends on the backend auth decision (local JWT vs OAuth).
 2. **UI library** — Tailwind vs a component kit (MUI/shadcn). Pick one for consistent skeletons/toasts.
-3. **Type generation** — generate TS types from backend OpenAPI, or hand-mirror DTOs?
+3. **Type generation** — generate TS types from the backend Swagger/OpenAPI (`/swagger/v1/swagger.json`), or hand-mirror DTOs?
 4. **Bonus-prediction UI** — include all seven bonus inputs in the prediction form, or start with exact-score only (matching the backend MVP tier)?
 5. **i18n in MVP** — ship en/sq from the start or English-only for the hackathon?
 

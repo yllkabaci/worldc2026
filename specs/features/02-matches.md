@@ -24,7 +24,7 @@ Exposes the tournament fixtures to everyone and lets an admin record an official
 - Must **not** apply extra-time/shootout scores to the recorded regulation result used for scoring.
 
 ## Integration Boundaries
-- `IFootballApi` (twin) supplies fixtures and may publish results; admin entry overrides imported data (UC-A02/§8.3).
+- `IFootballApi` supplies fixtures/results. Provider = **football-data.org** (v4, `X-Auth-Token`, competition `WC`); a deterministic **twin** is used in dev/test and when no API token is set. Admin entry overrides imported data (UC-A02/§8.3).
 - Persistence via `IApplicationDbContext`.
 
 ## Domain Notes
@@ -43,3 +43,4 @@ Calendar/details return correct data; an admin result transitions the match and 
 1. **Cancel/postpone are in the MVP** (UC-A11): cancel → predictions void; postpone → deadline resets to the new kickoff.
 2. **Re-settlement is in the MVP** (UC-A10): changing a settled result requires double-confirmation + an immutable audit entry, then re-runs settlement.
 3. Knockouts are scored on the **regulation 90-minute** result (extra time/shootouts ignored).
+4. Fixture/result source = **football-data.org** (twin in dev/test). **Verify** how the provider reports the 90-minute score for matches that go to extra time before relying on `score.fullTime` for the regulation result.

@@ -34,13 +34,14 @@ A compiling .NET solution with three projects (Api / Infrastructure / Domain) an
 - `Common/Behaviors/`: `LoggingBehavior`, `ValidationBehavior`, `UnitOfWorkBehavior` registered in order Logging → Validation → UnitOfWork → handler.
 - `Common/`: `ApiResponse<T>` + `.ToApiResponse()` / `.ToApiListResponse()` extensions; `GlobalExceptionHandler : IExceptionHandler` with the `ErrorCodes → HTTP status` map; `RouteNames` constants class (empty); module-scanning that discovers `IFeatureModule` / `IEndpointModule` across the assembly.
 - CQRS marker interfaces: `ICommand<T>`, `IQuery<T>`, `ICommandHandler<,>`, `IQueryHandler<,>`.
-- `Program.cs`: JSON defaults (camelCase, enums as strings), JWT bearer + the `User`/`Admin`/`SuperAdmin` policies, MediatR + FluentValidation assembly scan, `AddInfrastructure`, exception handler, health checks, feature-module discovery, CORS for the frontend dev origin.
+- `Program.cs`: JSON defaults (camelCase, enums as strings), JWT bearer + the `User`/`Admin`/`SuperAdmin` policies, MediatR + FluentValidation assembly scan, `AddInfrastructure`, exception handler, health checks, **Swagger / OpenAPI (Swashbuckle) with a JWT bearer security scheme**, feature-module discovery, CORS for the frontend dev origin.
 
 ### Tests
 - `WorldCup.Tests.Helpers` with an empty `TestData/` and a `WebApplicationFactory` fixture configured for **SQLite/in-memory** with an overridable `IClock` and the football-API twin (per `testing-conventions.md`).
 
 ## Behavioral Contract
 - `GET /healthz` returns healthy; `GET /readyz` returns ready when the DB is reachable.
+- In Development, **Swagger UI is served at `/swagger`** and the OpenAPI document at `/swagger/v1/swagger.json`; the UI has an **Authorize** button for pasting a JWT. (Disabled outside Development.)
 - With no features registered, no business routes exist; the app still starts and serves health checks.
 - `dotnet build` and `dotnet test` both succeed on the empty skeleton.
 
