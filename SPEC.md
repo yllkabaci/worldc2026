@@ -129,7 +129,7 @@ The demo-able loop after the spine: *see fixtures → predict → admin settles 
 All previously open decisions are now settled (resolved with the team):
 
 1. **Auth model** — local JWT, **minimal**: email/password, accounts **active on registration** (no email-verification gate), **no lockout** in the MVP. OAuth, verification, and lockout (BR-018) are tier 2. Symmetric dev signing key.
-2. **Database** — **SQLite** for the hackathon run; SQL Server is the prod target.
+2. **Database** — **SQLite** for the hackathon run: a local `worldcup.db` created/updated on startup via **EF Core migrations** (gitignored). **SQL Server** is the prod target. Override via `ConnectionStrings:Default` (env/secret).
 3. **Rules-versioning depth** — **single mutable `ScoringRuleSet`** for the MVP; matches pin a rule-set id but effective-dating/history is tier 2.
 4. **Scoring scope** — **base only** (exact `3` / winner `1` / draw `1` / miss `0`). The seven bonus predictions **and** stage multipliers are tier 2 (the engine is built to support them).
 5. **Leaderboard tiebreak** — primary BR-003 (exact-score accuracy), secondary **earliest registration** → unique deterministic winner.

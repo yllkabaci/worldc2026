@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +15,7 @@ using WorldCup.Domain.Abstractions;
 using WorldCup.Infrastructure;
 using WorldCup.Infrastructure.ExternalApis;
 using WorldCup.Infrastructure.Identity;
+using WorldCup.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -110,6 +112,13 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 builder.Services.AddFeatureModules(typeof(Program).Assembly);
 
 var app = builder.Build();
+
+// Apply EF Core migrations on startup (the Testing host manages its own in-memory database).
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+}
 
 app.UseExceptionHandler();
 app.UseSerilogRequestLogging();

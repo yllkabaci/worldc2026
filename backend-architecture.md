@@ -267,7 +267,7 @@ All decisions are settled — `SPEC.md §11` is the single source. Highlights: r
 
 ## 14. Related Documents (cross-references)
 
-- **Enforced coding conventions:** `application/backend/.claude/rules/` — `vertical-slice-architecture`, `minimal-api-endpoints`, `mediatr-cqrs`, `handler-no-httpcontext`, `business-rule-placement`, `domain-model-ddd`, `dtos-records`, `fluent-validation`, `error-codes`, `json-serialization`, `async-patterns`, `scoring-engine`, `testing-conventions`. These are binding at the file level; this document is the higher-level overview.
+- **Enforced coding conventions:** `application/backend/.claude/rules/` — `vertical-slice-architecture`, `minimal-api-endpoints`, `mediatr-cqrs`, `handler-no-httpcontext`, `business-rule-placement`, `domain-model-ddd`, `dtos-records`, `fluent-validation`, `error-codes`, `json-serialization`, `async-patterns`, `ef-core-persistence`, `scoring-engine`, `testing-conventions`. These are binding at the file level; this document is the higher-level overview.
 - **Authoring skills:** `application/backend/.claude/skills/create-feature` (scaffold a slice from a description or spec) and `write-unit-tests` (tests per the rules).
 - **Review agents:** `application/backend/.claude/agents/` — `code-reviewer`, `architecture-reviewer`, `test-reviewer`, `business-rules-reviewer`, `security-reviewer`.
 - **Frontend:** `frontend-architecture.md` — the React SPA that consumes this API. Note: success responses are wrapped in the **`ApiResponse<T>`** envelope, which the SPA's HTTP layer unwraps; failures are RFC 7807 ProblemDetails.

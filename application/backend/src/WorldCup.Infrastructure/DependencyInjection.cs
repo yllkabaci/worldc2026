@@ -18,7 +18,9 @@ public static class DependencyInjection
         FootballDataOptions footballDataOptions)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(sqliteConnectionString));
+            options.UseSqlite(
+                sqliteConnectionString,
+                sqlite => sqlite.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 

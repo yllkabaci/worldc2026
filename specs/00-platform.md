@@ -25,7 +25,7 @@ A compiling .NET solution with three projects (Api / Infrastructure / Domain) an
 - No aggregates yet (features add them).
 
 ### Infrastructure
-- `ApplicationDbContext : IApplicationDbContext` (EF Core, SQLite provider) with strongly-typed-ID value converters wired generically; **no entity configurations yet**.
+- `ApplicationDbContext : IApplicationDbContext` (EF Core, SQLite provider) with strongly-typed-ID value converters wired generically; **no entity configurations yet**. Migrations live in this (Infrastructure) assembly; a `IDesignTimeDbContextFactory` enables `dotnet ef migrations add ...`, and the API applies `Database.Migrate()` on startup (skipped in the Testing host). Full persistence conventions: `.claude/rules/ef-core-persistence.md`.
 - `SystemClock : IClock`; `CurrentUserService : ICurrentUserService` (reads the authenticated principal).
 - `Identity/`: `IJwtIssuer` + implementation; password hasher.
 - `ExternalApis/`: `IFootballApi` client + a deterministic in-memory twin (selected in non-prod/test).
@@ -55,5 +55,5 @@ The solution compiles, health checks pass, the MediatR pipeline + exception hand
 
 ## Resolved Decisions
 1. Runtime: **.NET 10 (LTS)**.
-2. Dev DB: **SQLite** (file); tests use the `WebApplicationFactory` (SQLite/in-memory).
+2. Dev DB: **SQLite** (local `worldcup.db`, created/updated on startup via EF Core migrations; override with `ConnectionStrings:Default`). Tests use the `WebApplicationFactory` (SQLite in-memory).
 3. JWT: **symmetric dev signing key**.
