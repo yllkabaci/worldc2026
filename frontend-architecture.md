@@ -103,7 +103,7 @@ Each frontend feature consumes the matching backend slice (`backend-architecture
 
 - **TypeScript-first, strict, no `any`.** Every request/response has an explicit type in `features/<x>/types.ts` that maps 1:1 to the backend DTO. Treat the backend as the contract owner; it exposes **Swagger/OpenAPI at `/swagger/v1/swagger.json`** (Development) — generate types from it, or hand-mirror and keep in sync. Note: the backend wraps success payloads in an **`ApiResponse<T>`** envelope, so types model the **inner** payload `T` and the client unwraps the envelope (see §6).
 - **Functional components** with explicit `interface Props {}`. No class components (except the Error Boundary).
-- **React Hook Form + Zod**: each form has a Zod schema that **mirrors the backend FluentValidation rules** so the user gets instant feedback, e.g. prediction goals `0–20` integer (BR-010), yellow cards `0–20` (BR-024), red cards `0–10` (BR-025), subs `0–5` per team (BR-028). Client validation is a UX convenience — **the server remains the source of truth**.
+- **React Hook Form + Zod**: each form has a Zod schema that **mirrors the backend FluentValidation rules** so the user gets instant feedback, e.g. prediction goals `0–20` integer (BR-010). Client validation is a UX convenience — **the server remains the source of truth**.
 - **Performance:** apply `useMemo`/`useCallback`/`React.memo` only where a measured re-render problem exists (e.g. large leaderboard lists) — not by default.
 
 ---
@@ -139,6 +139,7 @@ Each frontend feature consumes the matching backend slice (`backend-architecture
 
 - **Token storage (decided):** access token **in memory only** for the MVP — no refresh token, so a full reload logs the user out and they re-authenticate (mirrors the backend minimal-auth decision). HttpOnly refresh cookie is **tier 2**. Never `localStorage`/`sessionStorage`; never log tokens. Full client flow in `application/frontend/.claude/rules/auth-flow.md`.
 - **`ProtectedRoute` wrappers** read auth state and gate by role, mirroring backend policies: `User` (any authenticated) and `Admin` (the user's `IsAdmin`). Unauthorised access redirects (login) or shows a `403` view. Admin screens live behind the `Admin` gate.
+- **Post-login landing by role:** on successful login the app redirects **admins to `/admin`** and **regular users to `/dashboard`** via `landingPath()` in `lib/auth` (pure helper `landingPathForRoles(roles)`).
 - Never store secrets in client state; never log tokens.
 
 ---
@@ -168,7 +169,6 @@ Keep the UI thin: the demo-able loop is *see fixtures → predict → (admin set
 1. **Token storage / auth model** — *resolved:* in-memory access token, no refresh (minimal auth, local JWT); reload = re-login. HttpOnly refresh cookie and OAuth are tier 2.
 2. **UI library** — Tailwind vs a component kit (MUI/shadcn). Pick one for consistent skeletons/toasts.
 3. **Type generation** — generate TS types from the backend Swagger/OpenAPI (`/swagger/v1/swagger.json`), or hand-mirror DTOs?
-4. **Bonus-prediction UI** — include all seven bonus inputs in the prediction form, or start with exact-score only (matching the backend MVP tier)?
 5. **i18n in MVP** — ship en/sq from the start or English-only for the hackathon?
 
 > Resolve these with the backend decisions before building, so the contract (types, auth, validation) stays symmetric on both sides.
@@ -184,7 +184,7 @@ Keep the UI thin: the demo-able loop is *see fixtures → predict → (admin set
 | # | Screen | Key elements | Tier |
 |---|--------|--------------|------|
 | 1 | Home / Live feed | Upcoming matches (next 7 days), quick-predict CTA per match | spine |
-| 2 | Match detail | Score, venue, prediction input (main score; bonus fields tier 2) | spine |
+| 2 | Match detail | Score, venue, prediction input (score) | spine |
 | 3 | Prediction slip | Active predictions, edit within deadline, submit | spine |
 | 4 | Global leaderboard | Filters (period/stage/country), current-user rank pinned | spine |
 | 5 | Group leaderboard | Private ranking, members only | tier 2 |
@@ -200,7 +200,7 @@ Keep the UI thin: the demo-able loop is *see fixtures → predict → (admin set
 |---|--------|--------------|------|
 | 11 | Admin dashboard | Analytics: users, daily predictions, accuracy, active groups | tier 2 |
 | 12 | Match management | Set official results, cancel/postpone, audited re-settlement | spine |
-| 13 | Business-rules config | Points, multipliers, prediction windows | tier 2 |
+| 13 | Business-rules config | Points, prediction windows | tier 2 |
 | 14 | User management | List/filter, block/activate | tier 2 |
 | 15 | Tournament config | Teams, groups, schedule, stadiums | tier 2 |
 | 16 | API sync config | Football API key, sync interval, manual override | tier 2 |

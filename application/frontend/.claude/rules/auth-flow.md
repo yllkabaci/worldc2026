@@ -24,7 +24,7 @@ Exposes `{ isAuthenticated, user, roles, isAdmin, hasRole, logout }`. Features r
 Two roles only. Every authenticated account satisfies `User`; an account with the backend **`IsAdmin`** flag also has `Admin` (the JWT `role` claim is `Admin` or `User`). `hasRole("Admin")` ⇒ roles include `Admin`; `hasRole("User")` ⇒ authenticated. `isAdmin` is exposed for convenience.
 
 ## Login
-- `useLogin` mutation → `POST /api/auth/login` → on success `authStore.setSession(token)` then navigate to the intended route (or `/`).
+- `useLogin` mutation → `POST /api/auth/login` → on success `authStore.setSession(token)` then navigate to the **role landing**: `landingPath()` returns `/admin` for an admin (token role `Admin`) and `/dashboard` for a regular user. `landingPath`/`landingPathForRoles(roles)` live in `lib/auth`.
 - The login form uses **React Hook Form + Zod** (email + password). A `401` maps to a form-level error/toast (no field disclosure — see `error-handling.md`, `forms-validation.md`).
 
 ## Register

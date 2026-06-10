@@ -22,7 +22,7 @@ Three of five criteria (75%) reward the **quality of the process**, not feature 
 ## Why our spec corpus is the real multiplier
 Other teams spend the lights-out phase watching the AI and redirecting it. We spend it monitoring a system that already knows what "right" looks like — because we defined it before the build. Our PRD isn't a vague feature list; it's a layered corpus:
 - `SPEC.md` index + per-feature agent-grade specs in `specs/`
-- Every business rule (BR-001…BR-028) with edge cases and resolved decisions
+- Every business rule (BR-002…BR-022) with edge cases and resolved decisions
 - A locked architecture (`backend/frontend-architecture.md`) + 13 binding `.claude/rules`
 - A platform spec (`00-platform.md`) the build scaffolds from first
 
@@ -40,7 +40,6 @@ Five sessions prompting differently produce inconsistent output. Shared commands
 ## Why our verification is proof, not opinion
 The rules require holdout scenarios written before the build and never shown to the agents. Ours are specific and live **outside the repo** so agents can't overfit:
 - SC-11: edit blocked after the deadline even if the match is delayed (BR-007)
-- SC-18: a penalty shootout doesn't count for the penalty bonus (BR-027)
 - SC-21: a rule change doesn't retroactively rescore past matches
 - order-independence and points-conservation invariants
 

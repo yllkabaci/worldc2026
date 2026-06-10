@@ -24,7 +24,7 @@ The implemented immersive auth UI. Regenerate to this shape. Complements `auth-f
 ## Login card (`/login`)
 - Title `auth.login`. Fields: **Email**, **Password** — bound to `loginSchema`.
 - If navigated with `{ justRegistered: true }` → show `auth.registerSuccess` (green) at the top of the card.
-- Submit (`auth.login`): `useLogin` → `authStore.setSession(token)` → `navigate("/dashboard")`.
+- Submit (`auth.login`): `useLogin` → `authStore.setSession(token)` → `navigate(landingPath())` — **admins land on `/admin`, regular users on `/dashboard`**.
 - Errors: `401` → root error `auth.invalidCredentials`; otherwise `applyProblemDetailsToForm`.
 - Footer link `auth.noAccount` → `/register`.
 

@@ -59,16 +59,15 @@ Holdout verification scenarios live **outside this repo** (`~/Developer/Hackatho
 No controllers, no `Result<T>` pattern, no `double`/`float` for points, no `console.log` in production paths, no `any`, no inline styles, no raw SQL, no hardcoded connection strings/secrets.
 
 ## Business rules — frequently missed
-- **BR-001** stage multiplier applies to the match total, not per bonus (multipliers are tier 2).
+- **Scoring** awards points for only two outcomes: exact score = `3`, correct winner/draw = `1`, miss = `0`. **No bonuses, no stage multipliers** (removed from the product).
 - **BR-002** points never negative. **BR-003** tiebreak = exact-score accuracy, then earliest registration.
 - **BR-007** no edit after the deadline, even if the match is delayed.
 - **BR-008** cancelled match → predictions Void (0 points, no penalty).
 - **BR-022** all admin changes → immutable audit log.
-- **BR-026** minute-of-first-goal → Void if match ends 0-0 (tier 2 bonus).
 - Knockouts score on the **regulation 90-minute** result.
 
 ## MVP scope (spine)
-Auth (minimal JWT) → Matches (calendar + admin result + cancel/postpone + audited re-settlement) → Predictions (create/modify, deadline) → base Scoring + Settlement → Leaderboard (tiebreak + filters). Bonuses, stage multipliers, groups, real-time/SignalR, notifications, analytics = tier 2.
+Auth (minimal JWT) → Matches (calendar + admin result + cancel/postpone + audited re-settlement) → Predictions (create/modify, deadline) → Scoring (exact score / winner / draw) + Settlement → Leaderboard (tiebreak + filters). Groups, real-time/SignalR, notifications, analytics = tier 2.
 
 ## Definition of Done
 Feature matches its `specs/features/*` spec · business rules enforced in the domain · unit tests pass (scoring exhaustively) · passes its external holdout scenarios · no TS errors · no hardcoded data · ARIA present · mobile works at 375px.

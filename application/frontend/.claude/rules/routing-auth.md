@@ -37,3 +37,4 @@ export function ProtectedRoute({ role, children }: Props) {
 - **Never** store tokens or secrets in `localStorage`/`sessionStorage` unless the agreed model explicitly allows it; **never** log tokens.
 - Each route subtree is wrapped in an **Error Boundary** (see `error-handling.md`).
 - `401` handling (clear session + redirect) is centralised in the Axios interceptor (see `api-client-axios.md`), not duplicated per route.
+- **Post-login landing by role:** after a successful login the app routes by the user's role — **admins → `/admin`, regular users → `/dashboard`** — via `landingPath()` (`lib/auth`), which reads the token's roles. `landingPathForRoles(roles)` is the pure, unit-tested form.

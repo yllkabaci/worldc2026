@@ -15,7 +15,7 @@
 The backend must satisfy a configurable, audited, fairness-critical scoring domain:
 
 - **Correctness is the mission.** Points are money. Scoring must be deterministic, testable in isolation, and reproducible.
-- **Rules are configurable and versioned.** Admins change point values, multipliers, and the prediction window. Per the business doc (§8.2), *past matches are scored by the rules that were active at the time* — so scoring rules are **effective-dated** and a match is pinned to the rule set effective **as of its kickoff** (see §11).
+- **Rules are configurable and versioned.** Admins change point values and the prediction window. Per the business doc (§8.2), *past matches are scored by the rules that were active at the time* — so scoring rules are **effective-dated** and a match is pinned to the rule set effective **as of its kickoff** (see §11).
 - **Two account types.** Regular users vs. administrators, distinguished by a boolean `IsAdmin` flag and enforced by authorization policies.
 - **External data is untrusted and may be unavailable.** Fixtures/results arrive from an external football API; the system must degrade gracefully and allow admin override.
 - **Auditability.** All administrative changes are written to an immutable audit log.
@@ -55,8 +55,8 @@ These drivers justify the layered separation, CQRS, the versioned scoring aggreg
       Common/                 #   AggregateRoot, IDomainEvent, ValueObject, strongly-typed ID base
       Abstractions/           #   IApplicationDbContext, IClock, ICurrentUserService, IFootballApi
       Matches/                #   Match (root), MatchStatus, Score (VO), domain events
-      Predictions/            #   Prediction (root), BonusPrediction (VO)
-      Scoring/                #   ScoringRuleSet (versioned), StageMultiplier, PointsBreakdown (VO), ScoringService (pure)
+      Predictions/            #   Prediction (root)
+      Scoring/                #   ScoringRuleSet (versioned), PointsBreakdown (VO), ScoringService (pure)
       Users/                  #   User (IsAdmin flag), AccountStatus
       Groups/                 #   Group, InviteCode (VO), Membership
       Audit/                  #   AuditLogEntry
@@ -161,9 +161,9 @@ The endpoint is **transport only**: bind → map to command → `Send` → wrap 
 ### 5.2 Domain-Driven Design
 - **Rich aggregates** with `private set;` and behavior methods; construction via static factory methods; **strongly-typed IDs** (`MatchId`, `UserId`, `PredictionId`). See `.claude/rules/domain-model-ddd.md`.
   - `Match` (root): status, kickoff, `PredictionDeadline`, official `Result`, **pinned `ScoringRuleSetId`**; methods `Schedule`, `OpenForPredictions`, `Settle`, `Cancel`, `Postpone`. Lifecycle `Upcoming → Live → Finished/Cancelled`.
-  - `Prediction` (**its own aggregate root**): references `MatchId` + `UserId`; `Score` + optional `BonusPrediction`; `Place`/`Revise` allowed only before the deadline.
+  - `Prediction` (**its own aggregate root**): references `MatchId` + `UserId`; `Score`; `Place`/`Revise` allowed only before the deadline.
   - `ScoringRuleSet` (root, **versioned/effective-dated**): immutable once published; a match is scored by the rule set effective **as of its kickoff** (business doc §8.2).
-- **Value objects:** `Score(Home, Away)`, `BonusPrediction(...)`, `InviteCode`, `PointsBreakdown` — immutable, equality by value.
+- **Value objects:** `Score(Home, Away)`, `InviteCode`, `PointsBreakdown` — immutable, equality by value.
 - **Domain events** are raised by aggregates and dispatched **after** `SaveChanges` (by the UnitOfWork behavior) to trigger side effects without coupling the aggregate to infrastructure.
 - **DTOs are separate** from entities — entities never cross the API boundary (see `dtos-records.md`).
 
@@ -178,7 +178,7 @@ The endpoint is **transport only**: bind → map to command → `Send` → wrap 
 - **Authentication:** JWT Bearer. Identities originate from local registration (hashed passwords, BR-017) or OAuth providers (Google/Facebook, UC-U02). An `IJwtIssuer` mints tokens carrying `sub`, `role`, and `email` claims.
 - **Authorization policies:** `"User"` (any authenticated) and `"Admin"` (the user's `IsAdmin` flag), registered once and applied per endpoint via `.RequireAuthorization("…")`. The JWT `role` claim is `Admin` or `User`, derived from `IsAdmin` at login. Blocked accounts (BR-009/BR-018) fail the check.
 - **Current user in handlers** via `ICurrentUserService` (backed by `IHttpContextAccessor`), never by reading `HttpContext` in a handler (see `handler-no-httpcontext.md`).
-- **Input validation:** FluentValidation in the `ValidationBehavior` (input shape only; ranges per BR-010/BR-024–028). Business invariants live in the domain (see `business-rule-placement.md`).
+- **Input validation:** FluentValidation in the `ValidationBehavior` (input shape only; ranges per BR-010). Business invariants live in the domain (see `business-rule-placement.md`).
 - **Data protection:** EF Core parameterised queries only; passwords hashed (never logged); PII masked in logs. Lockout after 5 failed logins for 15 min (BR-018); sessions expire after 24h (BR-019).
 - **Audit:** every admin command appends an immutable `AuditLogEntry` (BR-022).
 
@@ -238,10 +238,10 @@ Unhandled / domain exception anywhere → GlobalExceptionHandler → ProblemDeta
 Scoring is isolated and pure — see `.claude/rules/scoring-engine.md`:
 
 - A `ScoringService` in `Domain/Scoring` takes a `Prediction`, the official `MatchResult`, and the **pinned `ScoringRuleSet`**, and returns a `PointsBreakdown` — a **pure function** with no I/O, clock, or randomness.
-- Algorithm: base points (exact `3` / winner `1` / draw `1` — configurable) + each enabled bonus, summed to the match total, then the **stage multiplier applied to the match total** (BR-001).
-- **Points are `decimal`** (never `double`/`float`); multipliers like `1.5x`/`2.0x` produce fractions kept exact with **no rounding**. Points are **never negative** (clamp at 0, BR-002).
+- Algorithm: points for one of two outcomes (configurable) — **exact score `3`**, **correct winner/draw `1`**, otherwise `0`. There are **no bonuses and no stage multipliers**.
+- **Points are `decimal`** (never `double`/`float`), with **no rounding**. Points are **never negative** (clamp at 0, BR-002).
 - A match is scored by the rule set effective **as of its kickoff** (pinned onto the `Match`).
-- Void cases: minute-of-first-goal **void on 0–0** (BR-026); cancelled match → predictions **void** (BR-008); penalty bonus **excludes shootouts** (BR-027).
+- Void cases: cancelled match → predictions **void** — 0 points, no penalty (BR-008).
 - Determinism enables exhaustive unit tests and behavioral holdout scenarios that verify scoring without reading code. See the `business-rules-reviewer` agent.
 
 ---
@@ -251,7 +251,7 @@ Scoring is isolated and pure — see `.claude/rules/scoring-engine.md`:
 The full domain is large (104 matches, groups, admin panel, notifications, analytics, mobile). Build the spine first:
 
 1. **Core spine (must):** Auth (JWT), Matches (calendar + admin set-result), MakePrediction/ModifyPrediction with the deadline rule, the **Scoring engine + SettleMatch**, Global Leaderboard with tiebreak (BR-003: exact-score accuracy).
-2. **Second tier (if time):** versioned points configuration (admin), bonus predictions, group standings.
+2. **Second tier (if time):** versioned points configuration (admin), group standings.
 3. **Defer:** private groups, notifications, analytics/export, OAuth providers (use local JWT), mobile, real football-API sync (use the twin).
 
 Verifiable core: *predict → settle → score → rank*.
@@ -260,7 +260,7 @@ Verifiable core: *predict → settle → score → rank*.
 
 ## 13. Resolved Decisions / Assumptions
 
-All decisions are settled — `SPEC.md §11` is the single source. Highlights: routing via auto-discovered modules (AD-4); 3 projects with co-located slices; `ICommand`/`IQuery` markers; mandatory UnitOfWork behavior; decimal points; **base scoring only for the MVP** (bonuses + stage multipliers tier 2); **single mutable `ScoringRuleSet`** (effective-dated history tier 2); knockouts scored on the **regulation 90-minute** result; **minimal auth** (active on registration, no verification/lockout, symmetric dev key); **distinct create/modify** prediction verbs; **cancel/postpone, re-settlement-with-audit, and leaderboard filters pulled into the MVP**; integration tests on SQLite; runtime **.NET 10 (LTS)**.
+All decisions are settled — `SPEC.md §11` is the single source. Highlights: routing via auto-discovered modules (AD-4); 3 projects with co-located slices; `ICommand`/`IQuery` markers; mandatory UnitOfWork behavior; decimal points; **scoring awards points only for an exact score (`3`) and a correct winner/draw (`1`)** (no bonuses, no stage multipliers); **single mutable `ScoringRuleSet`** (effective-dated history tier 2); knockouts scored on the **regulation 90-minute** result; **minimal auth** (active on registration, no verification/lockout, symmetric dev key); **distinct create/modify** prediction verbs; **cancel/postpone, re-settlement-with-audit, and leaderboard filters pulled into the MVP**; integration tests on SQLite; runtime **.NET 10 (LTS)**.
 
 > If a *new* ambiguity surfaces during the build, halt and clarify — do not guess.
 

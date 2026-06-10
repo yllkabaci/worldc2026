@@ -10,7 +10,7 @@ Exposes the tournament fixtures to everyone and lets an admin record an official
 ## Behavioral Contract
 - When anyone requests the calendar, the system returns matches with stage, teams, kickoff (UTC), status, and (if known) result; filterable by stage/date/status.
 - When anyone requests a match by id, the system returns its details, or `404` if it does not exist.
-- When an **admin** sets the official result of a match that is `Finished` (or eligible), the system records the regulation result (home/away goals, plus bonus fields when present), marks the match `Settled`, and triggers scoring (feature 04).
+- When an **admin** sets the official result of a match that is `Finished` (or eligible), the system records the regulation result (home/away goals), marks the match `Settled`, and triggers scoring (feature 04).
 - When a **non-admin** attempts to set a result, the system returns `403`.
 - When an admin sets a result for a non-existent match, the system returns `404`; for a match not in a settleable state, `409`.
 - When an **admin cancels** a match, the system marks it `Cancelled`; its predictions become **void** at settlement (0 points, no penalty, BR-008).
@@ -31,7 +31,7 @@ Exposes the tournament fixtures to everyone and lets an admin record an official
 - `Match` aggregate (root): stage, two teams (nullable until a knockout slot resolves), kickoff, `PredictionDeadline` (= kickoff − window), status (`Upcoming → Live → Finished/Cancelled`), official `Result`, and the **`ScoringRuleSetId` pinned as of kickoff**. Methods: `Schedule`, `OpenForPredictions`, `Settle`, `Cancel`, `Postpone`.
 
 ## Validation (input shape only)
-- `SetOfficialResult`: goals are integers `0–20`; bonus fields within their ranges when supplied (cards `0–20`/`0–10`, subs `0–5`).
+- `SetOfficialResult`: goals are integers `0–20`.
 
 ## Error Codes
 `MatchNotFound` (404), `MatchNotSettleable` (409), `Forbidden` (403), `ValidationError` (400).

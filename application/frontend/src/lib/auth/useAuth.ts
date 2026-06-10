@@ -12,6 +12,16 @@ export function roleMatches(roles: string[], required: AppRole): boolean {
   return roles.length > 0; // any role ⇒ authenticated
 }
 
+/** Where to send a user after login: admins to the admin console, everyone else to their dashboard. */
+export function landingPathForRoles(roles: string[]): string {
+  return roles.includes("Admin") ? "/admin" : "/dashboard";
+}
+
+/** Landing path for the currently authenticated user (reads the auth store inside lib/auth). */
+export function landingPath(): string {
+  return landingPathForRoles(authStore.getUser()?.roles ?? []);
+}
+
 export function useAuth() {
   const token = useSyncExternalStore(authStore.subscribe, authStore.getToken, () => null);
   const user = authStore.getUser();

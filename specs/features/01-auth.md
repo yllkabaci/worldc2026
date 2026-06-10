@@ -31,6 +31,8 @@ Lets a visitor create an account and sign in, returning a JWT used for all prote
 ## Error Codes
 `ValidationError` (400), `Conflict`/duplicate email (409), `Unauthorized` (401).
 
+> **Client routing (frontend):** after login the SPA redirects **admins to `/admin`** and **regular users to `/dashboard`** based on the JWT role derived from `IsAdmin` (see `application/frontend/.claude/rules/auth-flow.md`).
+
 ## Definition of Done
 Register + login work end to end against the SQLite-backed factory; a protected endpoint accepts the issued token and rejects missing/invalid tokens. Verified by holdout scenarios (external).
 

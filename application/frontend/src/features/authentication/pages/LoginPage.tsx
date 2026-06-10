@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { loginSchema, type LoginFormValues } from "../schemas/loginSchema";
 import { useLogin } from "../api/useLogin";
+import { landingPath } from "../../../lib/auth/useAuth";
 import { applyProblemDetailsToForm } from "../../../lib/forms/applyProblemDetailsToForm";
 import type { ProblemDetails } from "../../../lib/api/problemDetails";
 import "./auth-scene.css";
@@ -29,7 +30,8 @@ export function LoginPage() {
   const onSubmit = handleSubmit(async (values) => {
     try {
       await login.mutateAsync(values);
-      navigate("/dashboard");
+      // Admins land on the admin console; everyone else on their dashboard.
+      navigate(landingPath());
     } catch (e) {
       const problem = e as ProblemDetails;
       if (problem.status === 401) {

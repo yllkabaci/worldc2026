@@ -17,11 +17,13 @@ The World Cup 2026 Prediction App lets users predict the results of FIFA World C
 
 ## 2. Scope
 
-**In scope (MVP spine — must build):** authentication (JWT, minimal), match calendar + details + admin result entry **including cancel/postpone and re-settlement with audit**, create/modify prediction with the deadline rule, the **base** scoring engine + match settlement, and the global leaderboard with tiebreak **and filters (period/stage/country)**. This is the verifiable core: *predict → settle → score → rank*.
+**In scope (MVP spine — must build):** authentication (JWT, minimal), match calendar + details + admin result entry **including cancel/postpone and re-settlement with audit**, create/modify prediction with the deadline rule, the scoring engine + match settlement, and the global leaderboard with tiebreak **and filters (period/stage/country)**. This is the verifiable core: *predict → settle → score → rank*.
 
-**Second tier (if time):** bonus predictions + stage multipliers, configurable points (admin), private groups, my-predictions history, blocked-user removal from the leaderboard.
+**Scoring is intentionally simple:** points are awarded **only** for two outcomes — an **exact score** (`3` points) and a **correct winner or draw** (`1` point). There are no bonus predictions and no stage multipliers.
 
-**Out of scope (this version):** monetary payments/prizes, live match streaming, advanced AI analytics, native mobile, social-network integration beyond image sharing (business doc §9.2).
+**Second tier (if time):** configurable points (admin), private groups, my-predictions history, blocked-user removal from the leaderboard.
+
+**Out of scope (this version):** bonus predictions and stage multipliers (removed from the product), monetary payments/prizes, live match streaming, advanced AI analytics, native mobile, social-network integration beyond image sharing (business doc §9.2).
 
 ---
 
@@ -59,7 +61,7 @@ Full detail in `backend-architecture.md` / `frontend-architecture.md`. Locked de
 
 - **Backend:** **.NET 10 (LTS)**, ASP.NET Core **Minimal APIs**, **MediatR CQRS** (`ICommand`/`IQuery`), vertical slices co-located in `WorldCup.Api`, **3 projects** (Api / Infrastructure / Domain), auto-discovered feature modules, EF Core (SQLite for the run; SQL Server prod target), JWT + policies (symmetric dev signing key), typed exceptions → RFC 7807, `ApiResponse<T>` success envelope.
 - **Frontend:** React + TypeScript + **Vite** SPA, feature folders mirroring backend slices, TanStack Query, React Hook Form + Zod, RFC 7807 parsing, role-aware protected routes.
-- **Scoring:** pure deterministic engine, **decimal** points; the MVP uses **base scoring only** (exact/winner/draw) with a **single mutable `ScoringRuleSet`** (matches still pin a rule-set id; effective-dating is tier 2); bonuses and stage multipliers are tier 2; knockouts are scored on the **regulation 90-minute** result.
+- **Scoring:** pure deterministic engine, **decimal** points; scoring awards points **only** for an exact score (`3`) and a correct winner/draw (`1`), with a **single mutable `ScoringRuleSet`** (matches still pin a rule-set id; effective-dating is tier 2); there are **no bonuses and no stage multipliers**; knockouts are scored on the **regulation 90-minute** result.
 
 This section is the anchor for **Quality Gate 1 (spec-to-architecture sync)**.
 
@@ -68,10 +70,10 @@ This section is the anchor for **Quality Gate 1 (spec-to-architecture sync)**.
 ## 6. Domain Glossary
 
 - **Match** — a fixture with stage, two teams (may be undetermined until a knockout slot resolves), kickoff, status, and an official result. Lifecycle: `Upcoming → Live → Finished / Cancelled`.
-- **Prediction** — a user's predicted regulation score (and optional bonus predictions) for a match. Its own aggregate root.
+- **Prediction** — a user's predicted regulation score for a match. Its own aggregate root.
 - **Prediction deadline** — `kickoff − window` (default 60 min, configurable). Predictions are accepted only before it.
-- **ScoringRuleSet** — versioned, effective-dated configuration of point values, bonuses, and stage multipliers. A match is scored by the rule set effective **as of its kickoff**.
-- **PointsBreakdown** — the itemized result of scoring one prediction (base + bonuses + multiplier).
+- **ScoringRuleSet** — versioned, effective-dated configuration of the two point values (exact score, correct winner/draw). A match is scored by the rule set effective **as of its kickoff**.
+- **PointsBreakdown** — the itemized result of scoring one prediction (the awarded outcome and its points).
 - **Leaderboard** — users ranked by total points; tiebreak by exact-score accuracy (BR-003).
 - **Group** — a private mini-league (tier 2).
 
@@ -85,9 +87,9 @@ This section is the anchor for **Quality Gate 1 (spec-to-architecture sync)**.
 | 01 | `specs/features/01-auth.md` | Register, Login | spine | anonymous |
 | 02 | `specs/features/02-matches.md` | GetMatchCalendar, GetMatchDetails, SetOfficialResult, CancelOrPostpone, Re-settle (audited) | spine | anon/User + Admin |
 | 03 | `specs/features/03-predictions.md` | MakePrediction (POST), ModifyPrediction (PUT), GetMyActivePredictions | spine | User |
-| 04 | `specs/features/04-scoring-settlement.md` | SettleMatch + base scoring engine | spine | system |
+| 04 | `specs/features/04-scoring-settlement.md` | SettleMatch + scoring engine (exact score / winner / draw) | spine | system |
 | 05 | `specs/features/05-leaderboard.md` | GetGlobalLeaderboard (+ filters), GetMyRanking | spine | User |
-| — | (tier 2) | Bonus predictions, stage multipliers, Groups, Admin config, Reports, blocked-user removal, effective-dated rules | later | — |
+| — | (tier 2) | Groups, Admin config, Reports, blocked-user removal, effective-dated rules | later | — |
 
 ---
 
@@ -130,7 +132,7 @@ All previously open decisions are now settled (resolved with the team):
 1. **Auth model** — local JWT, **minimal**: email/password, accounts **active on registration** (no email-verification gate), **no lockout** in the MVP. OAuth, verification, and lockout (BR-018) are tier 2. Symmetric dev signing key.
 2. **Database** — **SQLite** for the hackathon run: a local `worldcup.db` created/updated on startup via **EF Core migrations** (gitignored). **SQL Server** is the prod target. Override via `ConnectionStrings:Default` (env/secret).
 3. **Rules-versioning depth** — **single mutable `ScoringRuleSet`** for the MVP; matches pin a rule-set id but effective-dating/history is tier 2.
-4. **Scoring scope** — **base only** (exact `3` / winner `1` / draw `1` / miss `0`). The seven bonus predictions **and** stage multipliers are tier 2 (the engine is built to support them).
+4. **Scoring scope** — points are awarded **only** for an exact score (`3`) and a correct winner/draw (`1`); a miss is `0`. There are **no bonus predictions and no stage multipliers** (removed from the product).
 5. **Leaderboard tiebreak** — primary BR-003 (exact-score accuracy), secondary **earliest registration** → unique deterministic winner.
 6. **Prediction API** — **distinct verbs**: `POST` create + `PUT/PATCH` modify; a second create for the same match returns `409`.
 7. **Knockout scoring** — uses the **regulation 90-minute** result (extra time and shootouts ignored).

@@ -4,6 +4,8 @@
 **Feature folder:** `Features/Predictions` · **Auth:** User
 **Consumes:** SPEC §6, business doc §4.3 + BR-004–010, `.claude/rules/*`.
 
+> Predictions are the regulation score only (home/away goals). There are no bonus-prediction inputs — bonuses have been removed from the product.
+
 ## System Overview
 Lets an authenticated user predict the regulation score of a match before its deadline, change it while the window is open, and list their pending predictions. The core use case of the app.
 
@@ -25,10 +27,10 @@ Lets an authenticated user predict the regulation score of a match before its de
 - Persistence via `IApplicationDbContext`; current time via `IClock`; identity via `ICurrentUserService`.
 
 ## Domain Notes
-- `Prediction` aggregate (**own root**): `MatchId`, `UserId`, `Score(home,away)`, optional `BonusPrediction` (tier 2). `Place(...)` / `Revise(...)` throw `PredictionWindowClosedException` if `now ≥ deadline`. Deadline read from the `Match`.
+- `Prediction` aggregate (**own root**): `MatchId`, `UserId`, `Score(home,away)`. `Place(...)` / `Revise(...)` throw `PredictionWindowClosedException` if `now ≥ deadline`. Deadline read from the `Match`.
 
 ## Validation (input shape only)
-- Goals are integers `0–20` (BR-010). Bonus-prediction inputs (cards/subs/minute/etc.) are tier 2; validate their ranges when added (BR-024–028).
+- Goals are integers `0–20` (BR-010).
 
 ## Error Codes
 `MatchNotFound` (404), `PredictionWindowClosed` (409), `DuplicatePrediction` (409, only if not treated as an edit), `Forbidden`/blocked (403), `ValidationError` (400).
@@ -37,5 +39,5 @@ Lets an authenticated user predict the regulation score of a match before its de
 Make/modify obey the deadline and one-per-match rule; last write wins before lock; pending list is correct; others' predictions are hidden before lock. Verified by holdout scenarios (external).
 
 ## Resolved Decisions
-1. **Exact-score only** in the MVP; bonus predictions are tier 2.
+1. **Exact-score prediction only** (home/away goals); there are **no bonus predictions** (removed from the product).
 2. **Distinct verbs**: `POST` create (a duplicate for the same match → `409`) and `PUT` modify (replace while open).
