@@ -136,7 +136,7 @@ Each frontend feature consumes the matching backend slice (`backend-architecture
 
 ## 8. Security & Routing
 
-- **Token storage:** recommended — keep the **access token in memory** and use an **HttpOnly refresh cookie**; for the hackathon a simpler in-memory token (accepting re-login on refresh) is acceptable. *Confirm in §11; this depends on the backend auth decision.*
+- **Token storage (decided):** access token **in memory only** for the MVP — no refresh token, so a full reload logs the user out and they re-authenticate (mirrors the backend minimal-auth decision). HttpOnly refresh cookie is **tier 2**. Never `localStorage`/`sessionStorage`; never log tokens. Full client flow in `application/frontend/.claude/rules/auth-flow.md`.
 - **`ProtectedRoute` wrappers** read auth state and gate by role, mirroring backend policies: `RequireUser`, `RequireAdmin`, `RequireSuperAdmin`. Unauthorised access redirects (login) or shows a `403` view. Admin screens live behind `RequireAdmin`.
 - Never store secrets in client state; never log tokens.
 
@@ -164,7 +164,7 @@ Keep the UI thin: the demo-able loop is *see fixtures → predict → (admin set
 
 ## 11. Open Decisions / Assumptions (align with backend §13)
 
-1. **Token storage / auth model** — in-memory + HttpOnly refresh vs simple in-memory for the hackathon; depends on the backend auth decision (local JWT vs OAuth).
+1. **Token storage / auth model** — *resolved:* in-memory access token, no refresh (minimal auth, local JWT); reload = re-login. HttpOnly refresh cookie and OAuth are tier 2.
 2. **UI library** — Tailwind vs a component kit (MUI/shadcn). Pick one for consistent skeletons/toasts.
 3. **Type generation** — generate TS types from the backend Swagger/OpenAPI (`/swagger/v1/swagger.json`), or hand-mirror DTOs?
 4. **Bonus-prediction UI** — include all seven bonus inputs in the prediction form, or start with exact-score only (matching the backend MVP tier)?

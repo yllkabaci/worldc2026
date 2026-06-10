@@ -33,7 +33,7 @@ export function ProtectedRoute({ role, children }: Props) {
 - **Every protected route** is wrapped in the correct `ProtectedRoute` mapping to the backend policy: `RequireUser` / `RequireAdmin` / `RequireSuperAdmin`. Admin screens go behind `Admin`.
 - **Unauthorised** access redirects to login (`401` shape) or shows a `403` view — never silently renders the screen.
 - **Auth state lives in `lib/auth`** (`authStore`, `useAuth`); features read it, never reinvent it.
-- **Token storage:** access token in **memory** with an **HttpOnly refresh cookie** is preferred; a simpler in-memory token (re-login on refresh) is acceptable for the hackathon. Confirm against the backend auth decision (architecture §8/§11).
+- **Token storage (decided):** access token in **memory only** for the MVP — no refresh token, so a full reload logs the user out and they re-authenticate (mirrors the backend minimal-auth decision). An HttpOnly refresh cookie is **tier 2**. Full flow in `auth-flow.md`.
 - **Never** store tokens or secrets in `localStorage`/`sessionStorage` unless the agreed model explicitly allows it; **never** log tokens.
 - Each route subtree is wrapped in an **Error Boundary** (see `error-handling.md`).
 - `401` handling (clear session + redirect) is centralised in the Axios interceptor (see `api-client-axios.md`), not duplicated per route.
