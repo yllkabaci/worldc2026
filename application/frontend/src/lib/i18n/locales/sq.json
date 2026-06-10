@@ -1,0 +1,10 @@
+{
+  "app.title": "Parashikimet e Kupës së Botës 2026",
+  "home.welcome": "Parashiko ndeshjet, fito pikë, ngjitu në renditje.",
+  "home.backendStatus": "Statusi i backend-it",
+  "status.healthy": "Në rregull",
+  "status.unreachable": "I paarritshëm",
+  "auth.login": "Hyr",
+  "auth.email": "Email",
+  "auth.password": "Fjalëkalimi"
+}

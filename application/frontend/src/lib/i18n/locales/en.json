@@ -1,0 +1,10 @@
+{
+  "app.title": "World Cup 2026 Predictions",
+  "home.welcome": "Predict matches, earn points, climb the leaderboard.",
+  "home.backendStatus": "Backend status",
+  "status.healthy": "Healthy",
+  "status.unreachable": "Unreachable",
+  "auth.login": "Log in",
+  "auth.email": "Email",
+  "auth.password": "Password"
+}

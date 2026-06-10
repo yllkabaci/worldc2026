@@ -119,6 +119,7 @@ Each frontend feature consumes the matching backend slice (`backend-architecture
 - **TanStack Query owns all server state.** Queries for reads (calendar, leaderboard, my predictions); mutations for writes (make/modify prediction, admin set-result). After a mutation, **invalidate** the affected query keys (e.g. settling/predicting invalidates `leaderboard` and `predictions`). **No `useEffect`-based fetching.**
 - **Query key factory** in `lib/api/queryKeys.ts` for consistent caching/invalidation.
 - Sensible defaults: `staleTime` per resource (calendar longer, leaderboard shorter), retry off for `4xx`.
+- **Dev servers:** the SPA runs on `http://localhost:5173` (Vite) and calls the API at `VITE_API_URL` (default `http://localhost:5080`). The backend's CORS policy allows the `5173` origin; auth is Bearer-token (no cookies), so no credentialed CORS. The Home page calls `/healthz` as a connectivity check.
 
 ---
 
