@@ -1,0 +1,96 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: #05100a;
+}
+.scene {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  min-height: 600px;
+  border-radius: 20px;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  align-items: center;
+}
+.scene .bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 60%, rgba(0,80,20,0.85) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 30%, rgba(255,180,0,0.18) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 80%, rgba(10,40,100,0.6) 0%, transparent 50%),
+    linear-gradient(160deg, #0a1a0a 0%, #0d2b12 35%, #061020 100%);
+}
+.scene .pitch-lines { position: absolute; inset: 0; opacity: 0.07; }
+.scene .lights {
+  position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+  width: 140%; height: 300px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,220,80,0.22) 0%, transparent 65%);
+  pointer-events: none;
+}
+.scene .left-content { position: relative; z-index: 2; flex: 1; padding: 3rem 2.5rem; color: #fff; }
+.scene .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 2.5rem; }
+.scene .brand-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(201,162,39,0.9); display: flex; align-items: center; justify-content: center; }
+.scene .brand-name { font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.9); }
+.scene .hero-text { margin-bottom: 1.5rem; }
+.scene .hero-text h1 { font-size: 34px; font-weight: 600; line-height: 1.2; color: #fff; margin-bottom: 0.75rem; }
+.scene .hero-text h1 span { color: #C9A227; }
+.scene .hero-text p { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.6; max-width: 280px; }
+.scene .stats-row { display: flex; gap: 1.5rem; margin-top: 2rem; }
+.scene .stat-chip { display: flex; flex-direction: column; gap: 2px; }
+.scene .stat-chip strong { font-size: 18px; font-weight: 600; color: #fff; }
+.scene .stat-chip span { font-size: 11px; color: rgba(255,255,255,0.45); }
+.scene .glass-card {
+  position: relative; z-index: 2; width: 360px; flex-shrink: 0;
+  margin: 2rem 2rem 2rem 0;
+  background: rgba(255,255,255,0.08);
+  border: 0.5px solid rgba(255,255,255,0.18);
+  border-radius: 16px; padding: 1.75rem 1.5rem;
+  min-height: 500px;
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.scene .card-title { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.scene .card-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 1.25rem; }
+.scene .field { margin-bottom: 0.85rem; }
+.scene .field label { display: block; font-size: 11px; color: rgba(255,255,255,0.55); margin-bottom: 5px; letter-spacing: 0.04em; }
+.scene .field input {
+  width: 100%; height: 44px; padding: 0 12px; border-radius: 8px;
+  border: 0.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.9); font-size: 13px; outline: none;
+}
+.scene .field input:focus { border-color: rgba(120,180,255,0.7); }
+.scene .field input[aria-invalid="true"] { border-color: rgba(255,120,120,0.8); }
+.scene .field input::placeholder { color: rgba(255,255,255,0.3); }
+.scene .field .hint { display: block; margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.4); }
+.scene .field .error { display: block; margin-top: 4px; font-size: 11px; color: #ff9a9a; }
+.scene .form-error { margin-bottom: 0.75rem; font-size: 12px; color: #ff9a9a; }
+.scene .notice { margin-bottom: 0.75rem; font-size: 12px; color: rgba(255,255,255,0.6); }
+.scene .btn-main {
+  width: 100%; height: 44px; border-radius: 8px; background: #2563EB; border: none;
+  color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 0.5rem; margin-bottom: 1rem;
+}
+.scene .btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
+.scene .divider { display: flex; align-items: center; gap: 8px; margin-bottom: 0.9rem; }
+.scene .div-line { flex: 1; height: 0.5px; background: rgba(255,255,255,0.12); }
+.scene .div-text { font-size: 11px; color: rgba(255,255,255,0.35); }
+.scene .oauth-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+.scene .btn-oauth {
+  flex: 1; min-height: 44px; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); font-size: 12px;
+  display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+}
+.scene .oauth-ico { font-weight: 700; }
+.scene .signin-link { text-align: center; font-size: 12px; color: rgba(255,255,255,0.4); }
+.scene .signin-link a { color: rgba(120,180,255,0.85); text-decoration: none; }
+
+@media (max-width: 860px) {
+  .scene { flex-direction: column; align-items: stretch; }
+  .scene .left-content { padding: 2rem 1.5rem 1rem; }
+  .scene .glass-card { width: auto; margin: 0 1.25rem 1.5rem; }
+}
+.scene .form-success { margin-bottom: 0.75rem; font-size: 12px; color: #6ee7a0; }

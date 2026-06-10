@@ -28,8 +28,9 @@ Exposes `{ isAuthenticated, user, roles, hasRole, login, logout }`. Features rea
 - The login form uses **React Hook Form + Zod** (email + password). A `401` maps to a form-level error/toast (no field disclosure — see `error-handling.md`, `forms-validation.md`).
 
 ## Register
-- `useRegister` mutation → `POST /api/auth/register`. On success, either auto-login (call the login flow) or redirect to `/login`.
-- The Zod schema mirrors the backend password rule (BR-017: ≥8 chars, ≥1 digit, ≥1 uppercase, ≥1 special) for instant feedback — **the server remains the source of truth**. Duplicate email → `409` surfaced as a form error.
+- `useRegister` mutation → `POST /api/auth/register`. The backend returns **no token**, so the user is **not** logged in here — on success `navigate("/login", { state: { justRegistered: true } })`; the login page then shows `auth.registerSuccess`.
+- The Zod schema mirrors the backend password rule (BR-017: ≥8 chars, ≥1 digit, ≥1 uppercase, ≥1 special) and adds a **client-only `confirmPassword`** (must match; never sent). The server remains the source of truth. Duplicate email → `409` → `auth.emailTaken` on the email field; other server errors map via `lib/forms/applyProblemDetailsToForm`.
+- Screen layout/styling: see `auth-screens.md`.
 
 ## Protected routes
 - Role-gated screens sit behind `ProtectedRoute` (see `routing-auth.md`), which reads `useAuth()` and maps to the backend policy. Unauthenticated → redirect to `/login`; wrong role → `403` view. The client gate is **UX only**; the server enforces on every request.
