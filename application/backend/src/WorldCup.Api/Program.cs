@@ -7,9 +7,15 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using WorldCup.Api.Common.Behaviors;
 using WorldCup.Api.Common.Errors;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using WorldCup.Api.Common.Modules;
+using WorldCup.Api.Common.Observability;
 using WorldCup.Api.Common.Services;
 using WorldCup.Domain.Abstractions;
 using WorldCup.Infrastructure;
@@ -106,7 +112,21 @@ builder.Services.AddSwaggerGen(o =>
     o.AddSecurityDefinition("Bearer", jwtScheme);
     o.AddSecurityRequirement(new OpenApiSecurityRequirement { { jwtScheme, Array.Empty<string>() } });
 });
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>("database", tags: ["ready"]);
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource.AddService(Telemetry.ServiceName))
+    .WithTracing(tracing => tracing
+        .AddSource(Telemetry.ServiceName)
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter())
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddOtlpExporter());
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AddFeatureModules(typeof(Program).Assembly);
@@ -120,8 +140,13 @@ if (!app.Environment.IsEnvironment("Testing"))
     scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
 }
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseExceptionHandler();
-app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging(options =>
+{
+    options.EnrichDiagnosticContext = (diagnostic, httpContext) =>
+        diagnostic.Set("UserId", httpContext.User.FindFirst("sub")?.Value ?? "anonymous");
+});
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -136,7 +161,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/healthz");
-app.MapHealthChecks("/readyz");
+app.MapHealthChecks("/readyz", new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready") });
 app.MapFeatureEndpoints(typeof(Program).Assembly);
 
 app.Run();

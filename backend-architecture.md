@@ -38,7 +38,7 @@ These drivers justify the layered separation, CQRS, the versioned scoring aggreg
 | AD-8 | AuthN/AuthZ | **JWT Bearer** + named **authorization policies** (`User`/`Admin`/`SuperAdmin`) | `RequireAuthorization("Admin")` etc. |
 | AD-9 | Errors | **Typed domain exceptions** → **`IExceptionHandler`** → RFC 7807 ProblemDetails | One global path; error codes `WC-NNNN`. |
 | AD-10 | Transactions | **`UnitOfWorkBehavior`** commits after a successful command | Handlers never call `SaveChanges`; one commit per command. |
-| AD-11 | Observability | **Serilog** (structured JSON) + **OpenTelemetry** + **Health Checks** | Operable from day one. *(Not yet covered by a rule — see §14.)* |
+| AD-11 | Observability | **Serilog** (structured JSON) + **OpenTelemetry** + **Health Checks** + correlation id | Operable from day one. See `.claude/rules/observability.md`. |
 | AD-12 | API docs | **Swagger UI via Swashbuckle** (OpenAPI v3) with a JWT bearer security scheme | Interactive docs + an `Authorize` button in Development; `/swagger/v1/swagger.json` feeds the frontend's type generation. Served only in Development. |
 
 > **Why not Carter or FastEndpoints (AD-4).** Both implement REPR, but MediatR (AD-5) already owns the handler abstraction, and we want zero third-party routing dependencies for a time-boxed build. Endpoints are plain Minimal-API static classes (`Map` + `HandleAsync`); each feature's `IEndpointModule` maps its endpoints, and modules are auto-discovered by assembly scan. See `.claude/rules/minimal-api-endpoints.md` and `vertical-slice-architecture.md`.
@@ -196,11 +196,12 @@ See the `security-reviewer` agent for the review checklist.
 
 ## 8. Observability
 
-*(Vision; not yet codified as a `.claude/rule` — see §14.)*
+Full conventions: `.claude/rules/observability.md`.
 
-- **Logging:** Serilog with structured properties and JSON sink. **Never** interpolate — `logger.LogInformation("User {UserId} predicted match {MatchId}", userId, matchId)`.
-- **Tracing/metrics:** OpenTelemetry (ASP.NET Core, HttpClient, EF Core); custom spans around the scoring engine and external API calls.
-- **Health:** `/healthz` (liveness) and `/readyz` (readiness — DB + external API).
+- **Logging:** Serilog with structured properties and JSON-friendly sink. **Never** interpolate — `logger.LogInformation("User {UserId} predicted match {MatchId}", userId, matchId)`. No secrets/PII in logs.
+- **Correlation id:** `CorrelationIdMiddleware` reads/generates `X-Correlation-Id`, echoes it on the response, and pushes it onto the Serilog `LogContext`; it also propagates on outbound `HttpClient` calls.
+- **Tracing/metrics:** OpenTelemetry (ASP.NET Core + HttpClient + runtime instrumentation) via OTLP, plus the app `ActivitySource` (`Telemetry.Source`) for custom spans around the scoring engine and external provider calls.
+- **Health:** `/healthz` (liveness) and `/readyz` (readiness — a `DbContext` check tagged `ready`; add an external-provider check when live football-data.org is enabled).
 
 ---
 
@@ -267,7 +268,7 @@ All decisions are settled — `SPEC.md §11` is the single source. Highlights: r
 
 ## 14. Related Documents (cross-references)
 
-- **Enforced coding conventions:** `application/backend/.claude/rules/` — `vertical-slice-architecture`, `minimal-api-endpoints`, `mediatr-cqrs`, `mediatr-pipeline`, `handler-no-httpcontext`, `business-rule-placement`, `domain-model-ddd`, `dtos-records`, `fluent-validation`, `error-codes`, `auth-and-authorization`, `json-serialization`, `async-patterns`, `ef-core-persistence`, `scoring-engine`, `testing-conventions`. These are binding at the file level; this document is the higher-level overview.
+- **Enforced coding conventions:** `application/backend/.claude/rules/` — `vertical-slice-architecture`, `minimal-api-endpoints`, `mediatr-cqrs`, `mediatr-pipeline`, `handler-no-httpcontext`, `business-rule-placement`, `domain-model-ddd`, `dtos-records`, `fluent-validation`, `error-codes`, `auth-and-authorization`, `json-serialization`, `async-patterns`, `ef-core-persistence`, `observability`, `scoring-engine`, `testing-conventions`. These are binding at the file level; this document is the higher-level overview.
 - **Authoring skills:** `application/backend/.claude/skills/create-feature` (scaffold a slice from a description or spec) and `write-unit-tests` (tests per the rules).
 - **Review agents:** `application/backend/.claude/agents/` — `code-reviewer`, `architecture-reviewer`, `test-reviewer`, `business-rules-reviewer`, `security-reviewer`.
 - **Frontend:** `frontend-architecture.md` — the React SPA that consumes this API. Note: success responses are wrapped in the **`ApiResponse<T>`** envelope, which the SPA's HTTP layer unwraps; failures are RFC 7807 ProblemDetails.
